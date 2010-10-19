@@ -1,9 +1,5 @@
 li
-	-if (file.ext == "ogm")
-		a(href='view/'+file.path+'/'+file.name)= file.name
-	-else if (file.ext == "mp3")
-		a(href='listen/'+file.path+'/'+file.name)= file.name
-	-else if (file.ext == "ogg")
-		a(href='listen/'+file.path+'/'+file.name)= file.name
+	-if (file.ext == "ogm" || file.ext == "mp3" || file.ext == "ogg")
+		a(href='view/'+file._id.toHexString())= file.name
 	-else
-		a(href='download/'+file.path+'/'+file.name)= file.name
+		a(href='download/'+file._id.toHexString())= file.name

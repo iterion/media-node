@@ -1,3 +1,3 @@
-video(src: '/download/'+file)
+audio(src: '/stream/'+file._id.toHexString(), height: 35, width: 200, controls: true, autobuffer: true)
 
-#detail Playing #{file}
+#detail Playing #{file.name}

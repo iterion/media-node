@@ -56,5 +56,18 @@ FilesProvider.prototype.findByTag = function(tag, callback) {
 	});
 };
 
+//Find record by object ID
+FilesProvider.prototype.findById = function(id, callback) {
+	this.getCollection(function(error, files_collection) {
+		if (error) callback(error)
+		else {
+			files_collection.findOne({_id: ObjectID.createFromHexString(id)}, function(error, result) {
+				if (error) callback(error)
+				else callback(null, result)
+			});
+		}
+	});	
+};
+
 //export so we can import it like a module
 exports.FilesProvider = FilesProvider;
