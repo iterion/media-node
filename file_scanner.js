@@ -22,8 +22,8 @@ function read_directory(path, parse) {
 						var tempName = filename.split(".");
 						tempResults.ext = tempName[tempName.length - 1];
 						var lowercaseName = filename.toLowerCase();
-						var nameNoExt = lowercaseName.replace(tempResults.ext, "");
-						var checkChars = ["(", ")", "&", "^", "."];
+						var nameNoExt = lowercaseName.replace("." + tempResults.ext, "");
+						var checkChars = ["(", ")", "&", "^"];
 						checkChars.forEach(function(remove) {
 							console.log(nameNoExt.indexOf(remove));
 							while(nameNoExt.indexOf(remove) >= 0) {
@@ -31,8 +31,8 @@ function read_directory(path, parse) {
 							}
 						});
 						tempResults.tags = nameNoExt.split(" ");
-						
-
+						//Add file reading here
+						//move results push to file read callback
 						results.push(tempResults);
 					} else {
 						countFolders++;
