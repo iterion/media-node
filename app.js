@@ -27,14 +27,17 @@ app.get('/', function(req, res) {
 //and [search] is the actual string for which the user 
 //has searched
 app.get('/find/:tag', function(req, res) {
-	var tag = req.params.id;
+	var tag = req.params.tag;
 	console.log('search for tag: ' + tag);
 	filesProvider.findByTag(tag, function(err, docs) {
-		res.render('files', {
-			locals: {
-				files: docs
-			}
-		});
+		if (err) res.send(err)
+		else {
+			res.render('files', {
+				locals: {
+					files: docs
+				}
+			});
+		}
 	});
 });
 
