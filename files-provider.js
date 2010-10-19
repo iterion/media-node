@@ -38,12 +38,13 @@ FilesProvider.prototype.findAll = function(callback) {
 
 
 //Find records containing a tag
-//TODO update to allow for searching for multiple tags
-FilesProvider.prototype.findByTag = function(tag, callback) {
+FilesProvider.prototype.findByTag = function(tags, callback) {
 	this.getCollection(function(error, files_collection) {
 		if (error) callback(error)
 		else {
-			files_collection.find({tags: tag}, function(error, cursor) {
+			//if( typeof(tags.length)=="undefined")
+			//	tags = [tags];
+			files_collection.find({tags: tags }, function(error, cursor) {
 				if (error) callback(error)
 				else {
 					cursor.toArray(function(error, results) {
@@ -54,6 +55,19 @@ FilesProvider.prototype.findByTag = function(tag, callback) {
 			});
 		}
 	});
+};
+
+//Find record by object ID
+FilesProvider.prototype.findById = function(id, callback) {
+	this.getCollection(function(error, files_collection) {
+		if (error) callback(error)
+		else {
+			files_collection.findOne({_id: ObjectID.createFromHexString(id)}, function(error, result) {
+				if (error) callback(error)
+				else callback(null, result)
+			});
+		}
+	});	
 };
 
 //export so we can import it like a module

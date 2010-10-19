@@ -26,65 +26,50 @@ app.get('/', function(req, res) {
 //where [field] is a field like artist or album
 //and [search] is the actual string for which the user 
 //has searched
-app.get('/find/*', function(req, res) {
-	var tag = req.params[0];
+app.get('/find/:tag', function(req, res) {
+	var tag = req.params.tag;
 	console.log('search for tag: ' + tag);
 	filesProvider.findByTag(tag, function(err, docs) {
-		res.render('files', {
+		if (err) res.send(err)
+		else {
+			res.render('files', {
+				locals: {
+					files: docs
+				}
+			});
+		}
+	});
+});
+
+//download link - not used for streaming
+app.get('/download/:id', function(req, res) {
+	filesProvider.findById(req.params.id, function(error, file) {
+		console.log("download:" + file.name);
+		res.download(file.path + "/" + file.name);
+	});
+});
+
+//like download - but used for streaming
+app.get('/stream/:id', function(req, res) {
+	filesProvider.findById(req.params.id, function(error, file) {
+		console.log("stream:" + file.name);
+		res.sendfile(file.path + "/" + file.name);
+	});
+});
+
+
+//view the file - view automaticall determines type and
+//sets up viewer
+app.get('/view/:id', function(req, res) {
+	filesProvider.findById(req.params.id, function(error, file) {
+		console.log("view:" + file.name);
+		res.render('stream', {
 			locals: {
-				files: docs
+				file: file
 			}
 		});
 	});
 });
-
-/*TODO update the following to retrieve paths based on 
-       objectID's rather than passing in paths through
-       the url
-*/
-
-//download link - not used for streaming
-app.get('/download/*', function(req, res) {
-	console.log("download:");
-	console.log(req.params);
-	var file = req.params[0];
-	res.download(file);
-});
-
-//like download - but used for streaming
-app.get('/stream/*', function(req, res) {
-	console.log("stream: " + req.params[0]);
-	var file = req.params[0];
-	res.sendfile(file);
-});
-
-
-//view and listen are different for audio + video
-//I think this functionality fits in the view better
-//These may be reduced to one function soon
-app.get('/view/*', function(req, res) {
-	console.log("view:");
-	console.log(req.params);
-	var file = req.params[0];
-	res.render('stream', {
-		locals: {
-			file: file
-		}
-	});
-});
-
-
-app.get('/listen/*', function(req, res) {
-	console.log("listen:");
-	console.log(req.params);
-	var file = req.params[0];
-	res.render('stream-audio', {
-		locals: {
-			file: file
-		}
-	});
-});
-
 
 //start the server
 app.listen(3000);
