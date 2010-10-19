@@ -30,22 +30,32 @@ Id3Reader.prototype.isId3v2 = function(callback) {
 };
 
 Id3Reader.prototype.readData = function(callback) {
-	this.isId3v2(function(error, isId3, data) {
+	//We're referencing this in the callbacks - make sure it stays correct
+	var cur = this;
+
+	cur.isId3v2(function(error, isId3, data) {
 		if (isId3) {
 			var read = new Buffer(10);
 			fs.read(data, read, 0, 10, 0, function(err, bytesRead) {
 				var size = read.slice(6,10);
-				this.offset = 10;
-				sys.log(size[0]);
-				sys.log(size[1]);
-				sys.log(size[2]);
-				sys.log(size[3]);
-				sys.log(read[0]);
-				sys.log(read[1]);
-				sys.log(read[2]);
+				cur.offset = 10;
+				cur.intFromBytes(size, 7);
 			});
 		}
 	});
+};
+
+Id3Reader.prototype.intFromBytes = function(buffer, sigBits) {
+	sigBits = sigBits || 8;
+	var bitValue = Math.pow(2, sigBits);
+	var index = 0;
+	var total = 0;
+	for(var i = buffer.length; i>0; i--) {
+		total += buffer[index] * Math.pow(bitValue, i);
+		index++;
+		sys.log("i: " + i);
+		sys.log(total);
+	}
 };
 
 //export so we can import it like a module
