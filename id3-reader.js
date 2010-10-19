@@ -3,8 +3,6 @@ var fs = require('fs');
 
 Id3Reader = function(filename) {
 	this.filename = filename;
-	this.mode = 0666;
-	this.flags = "r";
 };
 
 //Set up the collection
@@ -15,12 +13,12 @@ Id3Reader.prototype.getFile = function(callback) {
 	});
 };
 
-Id3Readr.prototype.isId3v2 = function(callback) {
+Id3Reader.prototype.isId3v2 = function() {
 	this.getFile(function(error, data) {
 		if (error) throw error;
 		else {
 			if(data.indexOf("ID3") >= 0) {
-				console.log(data.indexOf("ID3");
+				console.log("in reader, index: " + data.indexOf("ID3"));
 				return true;
 			} else {
 				return false;

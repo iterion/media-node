@@ -3,6 +3,8 @@ var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
 var db = new Db('files-index', new Server('localhost', Connection.DEFAULT_PORT, {}), {native_parser:true});
+var Id3 = require('./id3-reader').Id3Reader;
+
 
 function read_directory(path, parse) {
 		fs.readdir(path, function(err, files) {
@@ -33,6 +35,8 @@ function read_directory(path, parse) {
 						tempResults.tags = nameNoExt.split(" ");
 						//Add file reading here
 						//move results push to file read callback
+						id3 = new Id3(path + "/" + filename);
+						console.log(id3.isId3v2());
 						results.push(tempResults);
 					} else {
 						countFolders++;
