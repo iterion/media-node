@@ -74,13 +74,9 @@ Id3Reader.prototype.readFrame = function(data, callback) {
 
 Id3Reader.prototype.intFromBytes = function(buffer, sigBits) {
 	sigBits = sigBits || 8;
-	var bitValue = Math.pow(2, sigBits);
-	var index = 0;
 	var total = 0;
-	for(var i = buffer.length; i>0; i--) {
-		sys.log('i: ' + i + ' buff: ' + buffer[index]);
-		total += buffer[index] * Math.pow(bitValue, i-1);
-		index++;
+	for(var i = 0; i < buffer.length; i++) {
+		total += buffer[i] << (sigBits * (buffer.length - (i+1)));
 	}
 	return total;
 };
