@@ -1,3 +1,4 @@
+var sys = require('sys');
 var fs = require('fs');
 var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
@@ -11,10 +12,10 @@ function read_directory(path, parse) {
 			console.log("path was: " + path);
 			var results = [];
 			var count = files.length;
+			console.log("count: " + count);
 			var countFolders = 0;
 			files.forEach(function (filename) {
 				console.log(filename);
-				console.log("count: " + count);
 				fs.stat(path + "/" + filename, function(err, stat) {
 					if (!stat.isDirectory()) {
 						var tempResults = {};
@@ -27,7 +28,6 @@ function read_directory(path, parse) {
 						var nameNoExt = lowercaseName.replace("." + tempResults.ext, "");
 						var checkChars = ["(", ")", "&", "^"];
 						checkChars.forEach(function(remove) {
-							console.log(nameNoExt.indexOf(remove));
 							while(nameNoExt.indexOf(remove) >= 0) {
 								nameNoExt = nameNoExt.replace(remove, "");
 							}
@@ -36,26 +36,46 @@ function read_directory(path, parse) {
 						//Add file reading here
 						//move results push to file read callback
 						id3 = new Id3(path + "/" + filename);
-						console.log(id3.isId3v2());
-						results.push(tempResults);
+						id3.readData(function(data) {
+							if (data) {
+								tempResults.title = data['TIT2'];
+								tempResults.album = data['TALB'];
+								tempResults.track = data['TRCK'];
+								tempResults.artist = data['TPE1'];
+							}
+							results.push(tempResults);
+							count--;
+							sys.log("count in read callback: " + count);
+							sys.log("count of folders: " + countFolders);
+							if(count <= 0) {
+								if (countFolders <= 0) {
+									sys.log("made it");									
+									parse(results);
+								}
+							}	
+						});
 					} else {
 						countFolders++;
 						read_directory(path + "/" + filename, function (results2) { 
+							//where are we?
+							sys.log("in folder callback");
+							sys.log(countFolders);
 							results2.forEach(function(item) {
 								results.push(item);
 							});
 							countFolders--;
+							sys.log(results);
 							if (countFolders <= 0) {
 								parse(results);
 							}
 						});
 					}
-					count--;
-					if (count <= 0) {
-						if (countFolders <= 0) {
-							parse(results);
-						}
-					}
+//					count--;
+//					if (count <= 0) {
+//						if (countFolders <= 0) {
+//							parse(results);
+//						}
+//					}
 				});
 			});
 		});

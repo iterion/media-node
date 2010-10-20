@@ -24,6 +24,8 @@ Id3Reader.prototype.isId3v2 = function(callback) {
 			fs.read(data, buffer, 0, 3, 0, function(err, bytesRead) {
 				if(buffer.toString() == "ID3") {
 					callback(null, true, data);
+				} else {
+					callback(null, false);
 				}
 			});
 		}
@@ -40,28 +42,30 @@ Id3Reader.prototype.readData = function(callback) {
 				var size = read.slice(6,10);
 				cur.offset = 10;
 				cur.length = cur.intFromBytes(size, 7);
-				sys.log(callback);
 				cur.readFrame(data, callback);
 			});
+		} else {
+			callback(false);
 		}
 	});
 };
 
 Id3Reader.prototype.readFrame = function(data, callback) {
-	sys.log(this.offset + " < " + this.length);
 	if(this.offset < this.length) {
 		var buff = new Buffer(10);
 		var cur = this;
 		fs.read(data, buff, 0, 10, cur.offset, function(err, bytesRead) {
 			var frame = buff.slice(0,4);
 			var size = cur.intFromBytes(buff.slice(4,8));
-			sys.log(frame.toString());
 			cur.offset += 10;
 			if (size > 0) {
 				var contents = new Buffer(size);
 				fs.read(data, contents, 0, size, cur.offset, function(err, bytesRead) {
 					cur.offset += size;
-					sys.log(contents.toString());
+					if (frame.toString()[0] == "T") {
+						//We do not want the encoding byte for 'T' frames
+						contents = contents.slice(1, contents.length);
+					} 
 					cur.data[frame.toString()] = contents.toString();
 					cur.readFrame(data, callback);
 				});
