@@ -4,6 +4,7 @@ var FilesProvider = require('./files-provider').FilesProvider;
 
 var filesProvider = new FilesProvider();
 
+app.use(express.staticProvider(__dirname + '/public'));
 app.set('views', 'views');
 app.set('view engine', 'jade');
 
@@ -19,19 +20,40 @@ app.get('/', function(req, res) {
 	});
 });
 
-
-app.get('/list/:field', function(req, res) {
-	var field = req.params.field;
-	console.log('list ' + field + 's');
-	filesProvider.getPossible(field, function(err, docs) {
-		if (err) res.redirect('home');
-		else {
-			res.render('list', {
+app.get('/list/all.:format?', function(req, res) {
+	console.log('requested list all');	
+	var format = req.params.format || 'html';
+	filesProvider.findAll(function(err, docs) {
+		if(format == 'json') {
+			res.send(docs);
+		} else {
+			res.render('files', {
 				locals: {
-					field: field,
-					values: docs
+					files: docs
 				}
 			});	
+		}
+	});	
+});
+
+
+app.get('/list/:field.:format?', function(req, res) {
+	var field = req.params.field;
+	var format = req.params.format;
+	console.log('list ' + field + 's');
+	filesProvider.getPossible(field, function(err, docs) {
+		if (format == 'json') {
+			res.send(docs);
+		} else {
+			if (err) res.redirect('home');
+			else {
+				res.render('list', {
+					locals: {
+						field: field,
+						values: docs
+					}
+				});	
+			}
 		}
 	});
 });
