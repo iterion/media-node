@@ -45,21 +45,19 @@ function read_directory(path, parse) {
 							}
 							results.push(tempResults);
 							count--;
-							sys.log("count in read callback: " + count);
-							sys.log("count of folders: " + countFolders);
+							sys.log(filename + " in read callback: " + count);
 							if(count <= 0) {
 								if (countFolders <= 0) {
-									sys.log("made it");									
 									parse(results);
 								}
 							}	
 						});
 					} else {
 						countFolders++;
+						sys.log('new folder' + countFolders);
 						read_directory(path + "/" + filename, function (results2) { 
 							//where are we?
-							sys.log("in folder callback");
-							sys.log(countFolders);
+							sys.log(filename + " in folder callback: " + countFolders);
 							results2.forEach(function(item) {
 								results.push(item);
 							});

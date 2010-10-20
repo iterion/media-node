@@ -58,21 +58,27 @@ Id3Reader.prototype.readFrame = function(data, callback) {
 			var frame = buff.slice(0,4);
 			var size = cur.intFromBytes(buff.slice(4,8));
 			cur.offset += 10;
-			if (size > 0) {
-				var contents = new Buffer(size);
-				fs.read(data, contents, 0, size, cur.offset, function(err, bytesRead) {
-					cur.offset += size;
-					if (frame.toString()[0] == "T") {
-						//We do not want the encoding byte for 'T' frames
-						contents = contents.slice(1, contents.length);
-					} 
-					cur.data[frame.toString()] = contents.toString();
+			if (cur.intFromBytes(frame) > 0) {
+				if (size > 0) {
+					var contents = new Buffer(size);
+					fs.read(data, contents, 0, size, cur.offset, function(err, bytesRead) {
+						cur.offset += size;
+						if (frame.toString()[0] == "T") {
+							//We do not want the encoding byte for 'T' frames
+							contents = contents.slice(1, contents.length);
+						} 
+						cur.data[frame.toString()] = contents.toString();
+						cur.readFrame(data, callback);
+					});
+				} else {
 					cur.readFrame(data, callback);
-				});
+				}
 			} else {
 				callback(cur.data);
 			}
 		});
+	} else {
+		callback(this.data);
 	}
 };
 
