@@ -5,6 +5,7 @@ Id3Reader = function(filename) {
 	this.filename = filename;
 	this.flags = 'r';
 	this.offset = 0;
+	this.data = {};
 };
 
 //Set up the collection
@@ -32,7 +33,6 @@ Id3Reader.prototype.isId3v2 = function(callback) {
 Id3Reader.prototype.readData = function(callback) {
 	//We're referencing this in the callbacks - make sure it stays correct
 	var cur = this;
-
 	cur.isId3v2(function(error, isId3, data) {
 		if (isId3) {
 			var read = new Buffer(10);
@@ -40,13 +40,15 @@ Id3Reader.prototype.readData = function(callback) {
 				var size = read.slice(6,10);
 				cur.offset = 10;
 				cur.length = cur.intFromBytes(size, 7);
-				cur.readFrame(data);
+				sys.log(callback);
+				cur.readFrame(data, callback);
 			});
 		}
 	});
 };
 
-Id3Reader.prototype.readFrame = function(data) {
+Id3Reader.prototype.readFrame = function(data, callback) {
+	sys.log(this.offset + " < " + this.length);
 	if(this.offset < this.length) {
 		var buff = new Buffer(10);
 		var cur = this;
@@ -54,14 +56,18 @@ Id3Reader.prototype.readFrame = function(data) {
 			var frame = buff.slice(0,4);
 			var size = cur.intFromBytes(buff.slice(4,8));
 			sys.log(frame.toString());
-			sys.log(size);
 			cur.offset += 10;
-			var contents = new Buffer(size);
-			fs.read(data, contents, 0, size, cur.offset, function(err, bytesRead) {
-				cur.offset += size;
-				sys.log(contents.toString());
-				cur.readFrame(data);
-			});
+			if (size > 0) {
+				var contents = new Buffer(size);
+				fs.read(data, contents, 0, size, cur.offset, function(err, bytesRead) {
+					cur.offset += size;
+					sys.log(contents.toString());
+					cur.data[frame.toString()] = contents.toString();
+					cur.readFrame(data, callback);
+				});
+			} else {
+				callback(cur.data);
+			}
 		});
 	}
 };
