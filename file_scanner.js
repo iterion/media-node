@@ -70,12 +70,6 @@ function read_directory(path, parse) {
 							}
 						});
 					}
-//					count--;
-//					if (count <= 0) {
-//						if (countFolders <= 0) {
-//							parse(results);
-//						}
-//					}
 				});
 			});
 		});
