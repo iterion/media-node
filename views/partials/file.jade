@@ -1,5 +1,5 @@
 li
 	-if (file.ext == "ogm" || file.ext == "mp3" || file.ext == "ogg")
-		a(href='view/'+file._id.toHexString())= file.name
+		a(href='/view/'+file._id.toHexString())= file.title
 	-else
-		a(href='download/'+file._id.toHexString())= file.name
+		a(href='/download/'+file._id.toHexString())= file.title

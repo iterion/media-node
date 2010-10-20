@@ -19,6 +19,42 @@ app.get('/', function(req, res) {
 	});
 });
 
+
+app.get('/list/:field', function(req, res) {
+	var field = req.params.field;
+	console.log('list ' + field + 's');
+	filesProvider.getPossible(field, function(err, docs) {
+		if (err) res.redirect('home');
+		else {
+			res.render('list', {
+				locals: {
+					field: field,
+					values: docs
+				}
+			});	
+		}
+	});
+});
+
+app.get('/show/:field/:query', function(req, res) {
+	var field = req.params.field;
+	var query = req.params.query;
+	console.log('show tracks for the ' + query + ' ' + field);
+	filesProvider.queryField(field, query, function(err, docs) {
+		if (err) res.redirect('home');
+		else {
+			res.render('show', {
+				locals: {
+					field: field,
+					docs: docs
+				}
+			});	
+		}
+	});
+});
+
+
+
 //list files found by certain attributes
 //currently used as a search - but I think i'd like to
 //change it to be like the following:

@@ -1,3 +1,4 @@
+var util = require('util');
 var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
@@ -36,6 +37,38 @@ FilesProvider.prototype.findAll = function(callback) {
 	});
 };
 
+//Return all records about files
+FilesProvider.prototype.queryField = function(field, query, callback) {
+	this.getCollection(function(error, files_collection) {
+		if (error) callback(error)
+		else {
+			var q = {};
+			q[field] = query;
+			files_collection.find(q, function(error, cursor) {
+				if (error) callback(error)
+				else {
+					cursor.toArray(function(error, results) {
+						if (error) callback(error)
+						else callback(null, results)
+					});
+				}
+			});
+		}
+	});
+};
+
+//Return all records about files
+FilesProvider.prototype.getPossible = function(field, callback) {
+	this.getCollection(function(error, files_collection) {
+		if (error) callback(error)
+		else {
+			files_collection.distinct(field, function(error, values) {
+				if (error) callback(error)
+				else callback(null, values)
+			});
+		}
+	});
+};
 
 //Find records containing a tag
 FilesProvider.prototype.findByTag = function(tags, callback) {
