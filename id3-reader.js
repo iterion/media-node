@@ -39,10 +39,31 @@ Id3Reader.prototype.readData = function(callback) {
 			fs.read(data, read, 0, 10, 0, function(err, bytesRead) {
 				var size = read.slice(6,10);
 				cur.offset = 10;
-				cur.intFromBytes(size, 7);
+				cur.length = cur.intFromBytes(size, 7);
+				cur.readFrame(data);
 			});
 		}
 	});
+};
+
+Id3Reader.prototype.readFrame = function(data) {
+	if(this.offset < this.length) {
+		var buff = new Buffer(10);
+		var cur = this;
+		fs.read(data, buff, 0, 10, cur.offset, function(err, bytesRead) {
+			var frame = buff.slice(0,4);
+			var size = cur.intFromBytes(buff.slice(4,8));
+			sys.log(frame.toString());
+			sys.log(size);
+			cur.offset += 10;
+			var contents = new Buffer(size);
+			fs.read(data, contents, 0, size, cur.offset, function(err, bytesRead) {
+				cur.offset += size;
+				sys.log(contents.toString());
+				cur.readFrame(data);
+			});
+		});
+	}
 };
 
 Id3Reader.prototype.intFromBytes = function(buffer, sigBits) {
@@ -51,11 +72,11 @@ Id3Reader.prototype.intFromBytes = function(buffer, sigBits) {
 	var index = 0;
 	var total = 0;
 	for(var i = buffer.length; i>0; i--) {
-		total += buffer[index] * Math.pow(bitValue, i);
+		sys.log('i: ' + i + ' buff: ' + buffer[index]);
+		total += buffer[index] * Math.pow(bitValue, i-1);
 		index++;
-		sys.log("i: " + i);
-		sys.log(total);
 	}
+	return total;
 };
 
 //export so we can import it like a module
