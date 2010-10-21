@@ -40,7 +40,7 @@ function read_directory(path, parse) {
 							if (data) {
 								tempResults.title = data['TIT2'];
 								tempResults.album = data['TALB'];
-								tempResults.track = data['TRCK'];
+								tempResults.track = parseInt(data['TRCK']);
 								tempResults.artist = data['TPE1'];
 							} else {
 								tempResults.title = nameNoExt;
@@ -87,6 +87,10 @@ read_directory("media", function(results) {
 				results.forEach(function(item) {
 					collection.insert(item);
 				});
+				//collection.createIndex('track');
+				//collection.createIndex('album');
+				//collection.createIndex('artist');
+				//collection.createIndex('tags');
 				db.close();
 			});
 		});

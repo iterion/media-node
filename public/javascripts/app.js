@@ -28,6 +28,18 @@ var app = {
 	},
 
 	setupClickHandlers: function() {
+		this.setupBrowserLinks();
+		this.setupViewerLinks();
+	},
+	
+	setupViewerLinks: function() {
+		$('li a.viewer-link').live('click', function(e) {
+			e.preventDefault();
+			var $curLink = $(this);
+		});
+	},
+
+	setupBrowserLinks: function() {
 		$('li a.browser-link').live('click', function(e) {
 			e.preventDefault();
 			var $curLink = $(this);
@@ -58,7 +70,7 @@ var app = {
 										"class": "viewer-link " + newClass,
 										text: value.track + ": " + value.title,
 										href: "#"
-									})
+									}).data(value)
 								).appendTo(newList);
 							} else {
 								$('<li/>').append(

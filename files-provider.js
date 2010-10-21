@@ -44,7 +44,7 @@ FilesProvider.prototype.queryField = function(field, query, callback) {
 		else {
 			var q = {};
 			q[field] = query;
-			files_collection.find(q, function(error, cursor) {
+			files_collection.find(q, {'sort': 'track'}, function(error, cursor) {
 				if (error) callback(error)
 				else {
 					cursor.toArray(function(error, results) {
