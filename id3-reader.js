@@ -66,6 +66,10 @@ Id3Reader.prototype.readFrame = function(data, callback) {
 						if (frame.toString()[0] == "T") {
 							//We do not want the encoding byte for 'T' frames
 							contents = contents.slice(1, contents.length);
+							if(contents[contents.length-1] == 0) {
+								//Get rid of shitty tags with random extra blank bytes
+								contents = contents.slice(0, contents.length-1);
+							}
 						} 
 						cur.data[frame.toString()] = contents.toString();
 						cur.readFrame(data, callback);
