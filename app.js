@@ -12,7 +12,7 @@ app.set('view engine', 'jade');
 app.get('/', function(req, res) {
 	console.log('requested index');	
 	filesProvider.findAll(function(err, docs) {
-		res.render('files', {
+		res.render('index', {
 			locals: {
 				files: docs
 			}
@@ -58,19 +58,41 @@ app.get('/list/:field.:format?', function(req, res) {
 	});
 });
 
-app.get('/show/:field/:query', function(req, res) {
+
+app.get('/list/:field/for/:field2/:value.:format?', function(req, res) {
+	var field = req.params.field;
+	var field2 = req.params.field2;
+	var value = req.params.value;
+	var format = req.params.format;
+	console.log('list ' + field + 's for ' + field2 + ': ' + value);
+	filesProvider.getPossibleForCriteria(field, field2, value, function(err, docs) {
+		if (format == 'json') {
+			res.send(docs);
+		} else {
+			res.redirect('home');
+		}
+	});
+});
+
+
+app.get('/show/:field/:query.:format?', function(req, res) {
 	var field = req.params.field;
 	var query = req.params.query;
+	var format = req.params.format;
 	console.log('show tracks for the ' + query + ' ' + field);
 	filesProvider.queryField(field, query, function(err, docs) {
-		if (err) res.redirect('home');
-		else {
-			res.render('show', {
-				locals: {
-					field: field,
-					docs: docs
-				}
-			});	
+		if (format == 'json') {
+			res.send(docs);
+		} else {
+			if (err) res.redirect('home');
+			else {
+				res.render('show', {
+					locals: {
+						field: field,
+						docs: docs
+					}
+				});	
+			}
 		}
 	});
 });

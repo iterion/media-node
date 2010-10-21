@@ -1,0 +1,21 @@
+body {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+#wrapper {
+	position: relative;
+}
+
+#loading {
+	position: absolute;
+	width: 140px;
+	border: 1px solid #666;
+	text-align: center;
+	top: 0;
+	left: 50%;
+	margin-left: -70px;
+}
+

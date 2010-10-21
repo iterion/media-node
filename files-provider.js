@@ -70,6 +70,22 @@ FilesProvider.prototype.getPossible = function(field, callback) {
 	});
 };
 
+
+//Return all records about files
+FilesProvider.prototype.getPossibleForCriteria = function(field, search, value, callback) {
+	this.getCollection(function(error, files_collection) {
+		if (error) callback(error)
+		else {
+			var query = {};
+			query[search] = value;
+			files_collection.distinct(field, query, function(error, values) {
+				if (error) callback(error)
+				else callback(null, values)
+			});
+		}
+	});
+};
+
 //Find records containing a tag
 FilesProvider.prototype.findByTag = function(tags, callback) {
 	this.getCollection(function(error, files_collection) {

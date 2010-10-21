@@ -1,6 +1,13 @@
 !!! 5
 html
 	head
-		title File Listing
-		link(rel: 'stylesheet', href: '/public/stylesheets/app.css')
-	body!= body
+		title Media Browser
+		script(src: "http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js")
+		script(src: "javascripts/app.js")
+		script(src: "javascripts/jquery-ui-1.8.4.custom.min.js")
+		link(rel: 'stylesheet', href: '/stylesheets/app.css')
+	body
+		#loading.ui-state-highlight.ui-corner-all.ui-helper-hidden
+			p
+				span.ui-icon.ui-icon-info Loading...
+		#wrapper!= body
