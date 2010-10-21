@@ -27,6 +27,63 @@ var app = {
 		});
 	},
 
+	setupClickHandlers: function() {
+		$('li a.browser-link').live('click', function(e) {
+			e.preventDefault();
+			var $curLink = $(this);
+			var newHref = "";
+			var newClass = "";
+			if ($curLink.hasClass('artist')) {
+				//we're getting albums
+				newHref = "show/album/";
+				newClass = "album";
+			} else if ($curLink.hasClass('album')) {
+				newHref = "";
+				newClass = "track"
+			} else {
+				//dunno how to handle this
+			}
+			if(!$curLink.data('loaded')) {
+				$.ajax({
+					url: $curLink.attr('href') + '.json',
+					beforeSend: function() {
+						$curLink.data('loaded', true);
+					},
+					success: function(json, text, xhr) {
+						var newList = $('<ul/>');
+						$.each(json, function(key, value) {
+							if (newClass == "track") {
+								$('<li/>').append(
+									$('<a/>', {
+										"class": "viewer-link " + newClass,
+										text: value.track + ": " + value.title,
+										href: "#"
+									})
+								).appendTo(newList);
+							} else {
+								$('<li/>').append(
+									$('<a/>', {
+										"class": "browser-link " + newClass,
+										text: value,
+										href: newHref + value
+									})
+								).appendTo(newList);
+							}
+						});
+						$curLink.parent().append(newList);
+					},
+					error: function(json, text, xhr) {
+						$curLink.data('loaded', false);
+					}
+				});
+			} else {
+				//var childList = i
+				$curLink.parent().find('ul').first().toggleClass('hidden');
+				//childList.toggleClass('hidden');
+			}
+		});
+	},
+
 	loadArtists: function() {
 		//Load up our ideas
 		$.ajax({
@@ -36,39 +93,11 @@ var app = {
 				$.each(json, function(key, value) {
 					$('<li/>').append(
 					$('<a/>', {
+						"class": "browser-link artist",
 						text: value,
-						href: "list/album/for/artist/" + value,
-					}).click(function(e) {
-						e.preventDefault();
-						var $curLink = $(this);
-						$.ajax({
-							url: $curLink.attr('href') + '.json',
-							success: function(json, text, xhr) {
-								var albumList = $('<ul/>');
-								$.each(json, function(key, value) {
-									$('<li/>').append(
-										$('<a/>', {
-											text: value,
-											href: "show/album/" + value
-										}).click(function(e) {
-											e.preventDefault();
-											var $curLink = $(this);
-											$.ajax({
-												url: $curLink.attr('href') + '.json',
-												success: function(json, text, xhr) {
-													var trackList = $('<ul/>');
-													$.each(json, function(key, value) {
-														$('<li/>').text(value.track + ": " + value.title).appendTo(trackList);
-													});
-													$curLink.parent().append(trackList);
-												}
-											});
-										})).appendTo(albumList);
-								});
-								$curLink.parent().append(albumList);
-							}
-						});
+						href: "list/album/for/artist/" + value
 					})).appendTo(list);
+					//$('<li/>').text(value.track + ": " + value.title).appendTo(trackList);
 				});
 			}
 		});
@@ -87,6 +116,7 @@ $(function() {
 
 	//Set up gloabal Ajax handlers
 	app.setupAjaxHandlers();
+	app.setupClickHandlers();
 
 	//load our starting data
 	app.loadArtists();

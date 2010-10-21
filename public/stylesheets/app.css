@@ -19,3 +19,6 @@ body {
 	margin-left: -70px;
 }
 
+.hidden {
+	display: none;
+}
