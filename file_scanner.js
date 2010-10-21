@@ -44,6 +44,8 @@ function read_directory(path, parse) {
 								tempResults.artist = data['TPE1'];
 							} else {
 								tempResults.title = nameNoExt;
+								tempResults.artist = "unknown";
+								tempResults.album = "unknown";
 							}
 							results.push(tempResults);
 							count--;
