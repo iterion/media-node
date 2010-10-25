@@ -1,3 +1,12 @@
+var player = {
+	setupEvents: function() {
+		$('#player .player').bind("queueChanged", function() {
+			
+		}
+	}
+
+};
+
 var app = {
 	//Set content height
 	//Total height of window minus the height of the top two elements
@@ -33,11 +42,14 @@ var app = {
 			e.preventDefault();
 			var $curLink = $(this);
 			if($curLink.data('ext') == 'mp3' || $curLink.data('ext') == 'ogg') {
-				$('#player').append($('<audio/>', {
-					src: 'download/' + $curLink.data('_id'),
-					controls: true,
-					autoplay: true
-					}));
+				$('#player ol').append($('<li/>')
+					.append($('<h4 class="title" />').text($curLink.data('title')))
+					.append($('<p class="artist" />').text($curLink.data('artist')))
+					.append($('<p class="album" />').text($curLink.data('album')))
+					.data('_id', $curLink.data('_id'))
+				);
+				var audio = new Audio('download/' + $curLink.data('_id'));
+				audio.play();
 			}
 		});
 	},
