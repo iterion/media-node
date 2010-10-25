@@ -10,6 +10,7 @@ Id3Reader = function(filename) {
 
 //Set up the collection
 Id3Reader.prototype.getFile = function(callback) {
+	var cur = this;
 	fs.open(this.filename, this.flags, function(error, data) {
 		if (error) callback(error);
 		else callback(null, data);
@@ -17,15 +18,21 @@ Id3Reader.prototype.getFile = function(callback) {
 };
 
 Id3Reader.prototype.isId3v2 = function(callback) {
+	var cur = this;
 	this.getFile(function(error, data) {
-		if (error) throw error;
+		if (error) {
+			global.setTimeout(cur.isId3v2(callback), 1000);
+		}
 		else {
 			var buffer = new Buffer(3);
 			fs.read(data, buffer, 0, 3, 0, function(err, bytesRead) {
 				if(buffer.toString() == "ID3") {
 					callback(null, true, data);
 				} else {
-					callback(null, false);
+					fs.close(data, function() {
+						sys.log('closing');
+						callback(null, false);
+					});
 				}
 			});
 		}
@@ -78,11 +85,15 @@ Id3Reader.prototype.readFrame = function(data, callback) {
 					cur.readFrame(data, callback);
 				}
 			} else {
-				callback(cur.data);
+				fs.close(data, function() {
+					callback(cur.data);
+				});
 			}
 		});
 	} else {
-		callback(this.data);
+		fs.close(data, function() {
+			callback(this.data);
+		});
 	}
 };
 
