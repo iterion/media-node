@@ -1,8 +1,3 @@
-var ajax = {
-	loadComments: function(dealNumber, $commentDiv) {
-	}
-};
-
 var app = {
 	//Set content height
 	//Total height of window minus the height of the top two elements
@@ -37,6 +32,12 @@ var app = {
 		$('li a.viewer-link').live('click', function(e) {
 			e.preventDefault();
 			var $curLink = $(this);
+			if($curLink.data('ext') == 'mp3' || $curLink.data('ext') == 'ogg') {
+				$('#player').append($('<audio/>', {
+					src: 'stream/' + $curLink.data('_id'),
+					controls: true
+					}));
+			}
 		});
 	},
 

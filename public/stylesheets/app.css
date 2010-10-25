@@ -26,10 +26,12 @@ body {
 }
 
 #browser ul {
-	margin: 0
+	margin: 0;
+	padding: 0;
 }
 
 #browser li {
+	padding-left: 10px;
 	list-style: none;	
 }
 
@@ -42,7 +44,8 @@ body {
 }
 
 #player {
-	margin-left: 300px
+	margin-left: 300px;
+	padding: 1em;
 }
 
 .hidden {
