@@ -34,8 +34,9 @@ var app = {
 			var $curLink = $(this);
 			if($curLink.data('ext') == 'mp3' || $curLink.data('ext') == 'ogg') {
 				$('#player').append($('<audio/>', {
-					src: 'stream/' + $curLink.data('_id'),
-					controls: true
+					src: 'download/' + $curLink.data('_id'),
+					controls: true,
+					autoplay: true
 					}));
 			}
 		});
