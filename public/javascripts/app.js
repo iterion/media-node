@@ -1,7 +1,43 @@
 var player = {
+	currentTrack: null,
+	currentTrackId: null,
+	controls: $('#controls'),
 	setupEvents: function() {
-		$('#player .player').bind("queueChanged", function() {
-			
+		player = this;
+		$('#player').bind("queueChanged", function() {
+			$queue = $(this).find('.queue li');
+			var newTrack = $queue.first().data('_id');
+			if(newTrack) {
+				if(newTrack != player.currentTrackId) {
+					player.currentTrackId = newTrack;
+					player.currentTrack = new Audio('download/' + player.currentTrackId);
+					player.setupTrack();
+					player.currentTrack.play();
+				}
+			}
+		});
+		$('#playtoggle').bind('click', function(e) {
+			e.preventDefault();
+			var cur = player.currentTrack;
+			if(cur) {
+				if($(this).hasClass('playing')) {
+					cur.pause();
+				} else {
+					cur.play();
+				}
+			}
+		});
+	},
+	setupTrack: function() {
+		$(player.currentTrack).bind("ended", function () {
+			$queue = $('.queue li');
+			$queue.first().remove();
+			player.currentTrackId = "";
+			$('#player').trigger('queueChanged');
+		}).bind('play',function() {
+		  $("#playtoggle").addClass('playing').text("Pause");  
+		}).bind('pause ended', function() {
+			$("#playtoggle").removeClass('playing').text("Play");   
 		});
 	}
 
@@ -39,7 +75,6 @@ var app = {
 	
 	setupViewerLinks: function() {
 		$('li a.viewer-link').live('click', function(e) {
-			e.preventDefault();
 			var $curLink = $(this);
 			if($curLink.data('ext') == 'mp3' || $curLink.data('ext') == 'ogg') {
 				$('#player ol').append($('<li/>')
@@ -48,9 +83,9 @@ var app = {
 					.append($('<p class="album" />').text($curLink.data('album')))
 					.data('_id', $curLink.data('_id'))
 				);
-				var audio = new Audio('download/' + $curLink.data('_id'));
-				audio.play();
+				$('#player').trigger('queueChanged');
 			}
+			return false;
 		});
 	},
 
@@ -144,6 +179,9 @@ $(function() {
 	//Set up gloabal Ajax handlers
 	app.setupAjaxHandlers();
 	app.setupClickHandlers();
+
+	//setup content player
+	player.setupEvents();
 
 	//load our starting data
 	app.loadArtists();

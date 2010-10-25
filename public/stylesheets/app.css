@@ -45,8 +45,23 @@ body {
 
 #player {
 	margin-left: 300px;
-	padding: 1em;
+	padding-left: 1em;
+	padding-right: 1em;
+
 }
+
+.queue {
+	margin:0;
+}
+
+.queue li {
+}
+
+.queue li h4 {
+	margin:0;
+	
+}
+
 
 .hidden {
 	display: none;
