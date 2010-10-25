@@ -1,4 +1,4 @@
-var util = require('util');
+var util = require('sys');
 var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
