@@ -2,7 +2,7 @@ var player = {
 	setupEvents: function() {
 		$('#player .player').bind("queueChanged", function() {
 			
-		}
+		});
 	}
 
 };
