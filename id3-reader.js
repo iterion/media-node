@@ -30,7 +30,6 @@ Id3Reader.prototype.isId3v2 = function(callback) {
 					callback(null, true, data);
 				} else {
 					fs.close(data, function() {
-						sys.log('closing');
 						callback(null, false);
 					});
 				}
