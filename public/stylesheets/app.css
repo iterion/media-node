@@ -22,6 +22,7 @@ body {
 #browser {
 	float: left;
 	width: 300px;
+	overflow: auto;
 }
 
 #browser ul {
