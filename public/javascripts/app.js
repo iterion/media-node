@@ -7,7 +7,8 @@ var app = {
 	//Set content height
 	//Total height of window minus the height of the top two elements
 	setContentHeight: function() {
-		$('#content').css('height', $(window).height());
+		$('#browser').css('height', $(window).height());
+		$('#player').css('height', $(window).height());
 	},
 
 	setupAjaxDefaults: function() {

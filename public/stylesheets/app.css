@@ -19,6 +19,31 @@ body {
 	margin-left: -70px;
 }
 
+#browser {
+	float: left;
+	width: 300px;
+}
+
+#browser ul {
+	margin: 0
+}
+
+#browser li {
+	list-style: none;	
+}
+
+#browser li:nth-child(odd) {
+	background-color: white;
+}
+
+#browser li:nth-child(even) {
+	background-color: #BBD;
+}
+
+#player {
+	margin-left: 300px
+}
+
 .hidden {
 	display: none;
 }
