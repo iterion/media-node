@@ -1,11 +1,13 @@
 var player = {
 	currentTrack: null,
 	currentTrackId: null,
+	currentPosition: 0,
 	controls: $('#controls'),
 	setupEvents: function() {
 		player = this;
 		$('#player').bind("queueChanged", function() {
 			$queue = $(this).find('.queue li');
+			
 			var newTrack = $queue.first().data('_id');
 			if(newTrack) {
 				if(newTrack != player.currentTrackId) {
@@ -68,6 +70,7 @@ var app = {
 	setContentHeight: function() {
 		$('#browser').css('height', $(window).height());
 		$('#player').css('height', $(window).height());
+		$('#player .queue').css('height', $(window).height() - $('#controls').height()); 
 	},
 
 	setupAjaxDefaults: function() {

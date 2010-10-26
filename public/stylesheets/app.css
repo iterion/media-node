@@ -31,16 +31,29 @@ body {
 }
 
 #browser li {
-	padding-left: 10px;
+	padding-left: 0;
 	list-style: none;	
 }
 
+#browser li a.artist {
+	margin-left: 10px;
+}
+
+#browser li a.album {
+	margin-left: 20px;
+}
+
+#browser li a.track {
+	margin-left: 30px;
+	display: block;
+}
+
 #browser li:nth-child(odd) {
-	background-color: white;
+	background: rgb(221, 237, 254);
 }
 
 #browser li:nth-child(even) {
-	background-color: #BBD;
+	background: rgb(245, 245, 255);
 }
 
 #player {
@@ -49,8 +62,7 @@ body {
 }
 
 #controls {
-	height: 36px;
-	padding: 2px;
+	height: 40px;
 	position: relative;
 	color: #FFF;
 	background: -moz-linear-gradient(center top , rgba(174, 185, 196, 0.9), rgba(152, 164, 176, 0.9) 50%, rgba(132, 145, 159, 0.9) 50.1%, rgba(110, 124, 140, 0.9)) repeat scroll 0 0 transparent;
@@ -92,19 +104,39 @@ body {
 
 .queue {
 	margin:0;
+	padding: 0 0 0 30px;
+	overflow: auto;
+	color: #FFF;
+	background: rgba(110, 124, 140, 0.9);
 }
 
 .queue li {
+	margin: 0;
+	padding-left: 10px;
 }
 
-.queue li h4 {
+.queue li h4, li p {
 	margin:0;
+	color: #000;
 }
 
-.queue li p {
-	margin:0;
+.queue li.playing {
+	color: #fff;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgb(7,96,184)), color-stop(0.5, rgb(19,81,143)), color-stop(0.51, rgb(12,65,122)), color-stop(1, rgb(7,42,82)));
+	background: -moz-linear-gradient(center top, rgb(7,96,184) 0%, rgb(19,81,143) 50%, rgb(12,65,122) 51%, rgb(7,42,82) 100%);
 }
 
+.queue li:nth-child(odd) {
+	background: rgb(221, 237, 254);
+}
+
+.queue li:nth-child(even) {
+	background: rgb(245, 255, 255);
+}
+
+.queue li.playing h4, li.playing p {
+	color: #FFF;
+}
 
 .hidden {
 	display: none;
