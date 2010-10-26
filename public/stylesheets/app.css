@@ -45,9 +45,49 @@ body {
 
 #player {
 	margin-left: 300px;
-	padding-left: 1em;
-	padding-right: 1em;
+	padding: 0;
+}
 
+#controls {
+	height: 36px;
+	padding: 2px;
+	position: relative;
+	color: #FFF;
+	background: -moz-linear-gradient(center top , rgba(174, 185, 196, 0.9), rgba(152, 164, 176, 0.9) 50%, rgba(132, 145, 159, 0.9) 50.1%, rgba(110, 124, 140, 0.9)) repeat scroll 0 0 transparent;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(174, 185, 196, 0.9)), color-stop(0.5, rgba(152, 164, 176, 0.9)), color-stop(0.501, rgba(132, 145, 159, 0.9)), color-stop(1, rgba(110, 124, 140, 0.9))) repeat scroll 0 0 transparent;
+}
+
+#playtoggle {
+	height: 32px;
+	width: 32px;
+	position: absolute;
+	top: 2px;
+	left: 10px;
+	cursor: pointer;
+	background: url('../images/PNG/32/Gnome-Media-Playback-Start-32.png') no-repeat scroll 0 0 transparent;
+
+}
+
+#playtoggle.playing {
+	background: url('../images/PNG/32/Gnome-Media-Playback-Pause-32.png');
+}
+
+#skip {
+	height: 32px;
+	width: 32px;
+	position: absolute;
+	top: 2px;
+	left: 48px;
+	cursor: pointer;
+	background: url('../images/PNG/32/Gnome-Media-Skip-Forward-32.png');
+}
+
+#timeleft {
+	height: 32px;
+	width: 50px;
+	position: absolute;
+	top: 8px;
+	left: 100px;
 }
 
 .queue {

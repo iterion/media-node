@@ -46,9 +46,9 @@ var player = {
 			player.currentTrackId = "";
 			$('#player').trigger('queueChanged');
 		}).bind('play',function() {
-		  $("#playtoggle").addClass('playing').text("Pause");  
+		  $("#playtoggle").addClass('playing');  
 		}).bind('pause ended', function() {
-			$("#playtoggle").removeClass('playing').text("Play");   
+			$("#playtoggle").removeClass('playing');   
 		});
 		$(player.currentTrack).bind("timeupdate", function() {
 			var rem = parseInt(this.duration - this.currentTime, 10),
