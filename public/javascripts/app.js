@@ -16,6 +16,9 @@ var player = {
 					player.setupTrack();
 					player.currentTrack.play();
 				}
+			} else {
+				player.currentTrackId = null;
+				player.currentTrack.pause();
 			}
 		});
 		$('#playtoggle').bind('click', function(e) {
@@ -32,7 +35,6 @@ var player = {
 		$('#skip').bind('click', function(e) {
 			e.preventDefault();
 			var currentQueue = $('.queue li');
-			console.log(currentQueue);
 			if (currentQueue.length > 1) {
 				currentQueue.first().remove();
 				player.currentTrackId = "";
@@ -93,8 +95,17 @@ var app = {
 	setupClickHandlers: function() {
 		this.setupBrowserLinks();
 		this.setupViewerLinks();
+		this.setupRemoveTrack();
 	},
 	
+	setupRemoveTrack: function() {
+		$('.actions .remove').live('click', function(e) {
+			var $curLink = $(this);
+			$curLink.parents('li').remove();
+			$('#player').trigger('queueChanged');
+		});
+	},
+
 	setupViewerLinks: function() {
 		$('li a.viewer-link').live('click', function(e) {
 			var $curLink = $(this);
@@ -103,6 +114,8 @@ var app = {
 					.append($('<h4 class="title" />').text($curLink.data('title')))
 					.append($('<p class="artist" />').text($curLink.data('artist')))
 					.append($('<p class="album" />').text($curLink.data('album')))
+					.append($('<p class="actions" />')
+						.append($('<span class="remove" />')))
 					.data('_id', $curLink.data('_id'))
 				);
 				$('#player').trigger('queueChanged');

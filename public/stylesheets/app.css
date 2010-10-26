@@ -113,6 +113,7 @@ body {
 .queue li {
 	margin: 0;
 	padding-left: 10px;
+	position: relative;
 }
 
 .queue li h4, li p {
@@ -136,6 +137,22 @@ body {
 
 .queue li.playing h4, li.playing p {
 	color: #FFF;
+}
+
+.queue li .actions {
+	position: absolute;
+	right: 100px;
+	top: 0px;
+}
+
+.queue li .actions .remove {
+	background: url('../images/PNG/32/Gnome-Window-Close-32.png');
+	width: 32px;
+	height: 32px;
+	cursor: pointer;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .hidden {
