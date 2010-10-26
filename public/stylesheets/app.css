@@ -59,7 +59,10 @@ body {
 
 .queue li h4 {
 	margin:0;
-	
+}
+
+.queue li p {
+	margin:0;
 }
 
 

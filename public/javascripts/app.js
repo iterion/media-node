@@ -20,11 +20,22 @@ var player = {
 			e.preventDefault();
 			var cur = player.currentTrack;
 			if(cur) {
-				if($(this).hasClass('playing')) {
-					cur.pause();
-				} else {
+				if(cur.paused) {
 					cur.play();
+				} else {
+					cur.pause();
 				}
+			}
+		});
+		$('#skip').bind('click', function(e) {
+			e.preventDefault();
+			var currentQueue = $('.queue li');
+			console.log(currentQueue);
+			if (currentQueue.length > 1) {
+				currentQueue.first().remove();
+				player.currentTrackId = "";
+				player.currentTrack.pause();
+				$('#player').trigger('queueChanged');
 			}
 		});
 	},
@@ -38,6 +49,14 @@ var player = {
 		  $("#playtoggle").addClass('playing').text("Pause");  
 		}).bind('pause ended', function() {
 			$("#playtoggle").removeClass('playing').text("Play");   
+		});
+		$(player.currentTrack).bind("timeupdate", function() {
+			var rem = parseInt(this.duration - this.currentTime, 10),
+			pos = (this.currentTime / this.duration) * 100,
+			mins = Math.floor(rem/60,10),
+			secs = rem - mins*60;
+
+			$('#timeleft').text('-' + mins + ':' + (secs > 9 ? secs : '0' + secs));
 		});
 	}
 
