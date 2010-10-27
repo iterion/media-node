@@ -83,9 +83,9 @@ var player = {
 };
 
 var app = {
-	//Set content height
-	//Total height of window minus the height of the top two elements
 	setContentHeight: function() {
+		//Set content height
+		//Total height of window minus the height of the top two elements
 		$('#browser').css('height', $(window).height());
 		$('#player').css('height', $(window).height());
 		$('#player .queue').css('height', $(window).height() - $('#controls').height()); 
@@ -99,6 +99,7 @@ var app = {
 	},
 
 	setupAjaxHandlers: function() {
+		//show loading indicator
 		var $loading = $('#loading');
 		$('body').ajaxStart(function() {
 			$loading.show();
@@ -115,6 +116,7 @@ var app = {
 	},
 	
 	setupRemoveTrack: function() {
+		//handle removal of tracks from queue
 		$('.actions .remove').live('click', function(e) {
 			var $curLink = $(this);
 			var currentLi = $curLink.parents('li');
@@ -124,6 +126,7 @@ var app = {
 	},
 
 	setupViewerLinks: function() {
+		//handle addition of tracks to queue
 		$('li a.viewer-link').live('click', function(e) {
 			var $curLink = $(this);
 			if($curLink.data('ext') == 'mp3' || $curLink.data('ext') == 'ogg') {
@@ -156,7 +159,9 @@ var app = {
 				newClass = "track"
 			} else {
 				//dunno how to handle this
+				//don't currently need to
 			}
+			//is this section loaded?
 			if(!$curLink.data('loaded')) {
 				$.ajax({
 					url: $curLink.attr('href') + '.json',
@@ -166,11 +171,12 @@ var app = {
 					success: function(json, text, xhr) {
 						var newList = $('<ul/>');
 						$.each(json, function(key, value) {
+							//TODO make this shit more DRY
 							if (newClass == "track") {
 								$('<li/>').append(
 									$('<a/>', {
 										"class": "viewer-link " + newClass,
-										text: value.track + ": " + value.title,
+										text: value.track + ". " + value.title,
 										href: "#"
 									}).data(value)
 								).appendTo(newList);
@@ -187,19 +193,20 @@ var app = {
 						$curLink.parent().append(newList);
 					},
 					error: function(json, text, xhr) {
+						//in case we have a problem loading data set
+						//the loaded flag to false to force reload
 						$curLink.data('loaded', false);
 					}
 				});
 			} else {
-				//var childList = i
+				//when the list is loaded just toggle the display
 				$curLink.parent().find('ul').first().toggleClass('hidden');
-				//childList.toggleClass('hidden');
 			}
 		});
 	},
 
 	loadArtists: function() {
-		//Load up our ideas
+		//Load up our artists
 		$.ajax({
 			url: 'list/artist.json',
 			success: function(json, text, xhr) {
@@ -211,7 +218,6 @@ var app = {
 						text: value,
 						href: "list/album/for/artist/" + value
 					})).appendTo(list);
-					//$('<li/>').text(value.track + ": " + value.title).appendTo(trackList);
 				});
 			}
 		});
@@ -220,9 +226,10 @@ var app = {
 
 
 $(function() {
-	//Setup for window height
+	//Set up window height
 	app.setContentHeight();
 	
+	//Make sure we preserve these heights on a resize
 	$(window).resize(app.setContentHeight);
 	
 	//Set up global Ajax defaults
@@ -230,16 +237,13 @@ $(function() {
 
 	//Set up gloabal Ajax handlers
 	app.setupAjaxHandlers();
+
+	//Set up click handlers
 	app.setupClickHandlers();
 
-	//setup content player
+	//Set up content player
 	player.setupEvents();
 
 	//load our starting data
 	app.loadArtists();
-	
-	//If there is a hash
-	//Load that
-	//Also set hash on navigation
-
 });
