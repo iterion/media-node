@@ -3,6 +3,7 @@ body {
 	margin: 0;
 	padding: 0;
 	position: relative;
+	overflow: hidden;
 }
 
 #wrapper {
@@ -136,7 +137,10 @@ body {
 }
 
 .queue li.playing h4, li.playing p {
-	color: #FFF;
+	color: rgb(150, 150, 50);
+}
+
+.queue li.sort-placeholder {
 }
 
 .queue li .actions {

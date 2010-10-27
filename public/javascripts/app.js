@@ -208,7 +208,11 @@ var app = {
 			}
 		});
 	},
-
+	makeQueueSortable: function() {
+		$('.queue').sortable({
+			placeholder: 'sort-placeholder'
+		});
+	},
 	loadArtists: function() {
 		//Load up our artists
 		$.ajax({
@@ -250,4 +254,7 @@ $(function() {
 
 	//load our starting data
 	app.loadArtists();
+
+	//make queue sortable
+	app.makeQueueSortable();
 });
