@@ -4,21 +4,32 @@ var player = {
 	currentPosition: 0,
 	controls: $('#controls'),
 	setupEvents: function() {
-		player = this;
-		$('#player').bind("queueChanged", function() {
+		$('#player').bind("queueChanged", function(e, state, item) {
 			$queue = $(this).find('.queue li');
-			
-			var newTrack = $queue.first().data('_id');
-			if(newTrack) {
-				if(newTrack != player.currentTrackId) {
+			if((($queue.length-1) < player.currentPosition) && $queue.length > 0) {
+				player.currentPosition = $queue.length - 1;
+			}
+			if((state == "new" && $queue.length <= 1) || state == undefined) {
+				var newTrack = $($queue[player.currentPosition]).data('_id');
+				if(newTrack) {
 					player.currentTrackId = newTrack;
 					player.currentTrack = new Audio('download/' + player.currentTrackId);
 					player.setupTrack();
 					player.currentTrack.play();
+				} else {
+					player.currentTrackId = null;
+					player.currentTrack.pause();
 				}
-			} else {
-				player.currentTrackId = null;
-				player.currentTrack.pause();
+			} else if (state == "removed") {
+				if (item == player.currentPosition) {
+					player.currentTrack.pause();
+					player.currentTrackId = newTrack;
+					player.currentTrack = new Audio('download/' + player.currentTrackId);
+					player.setupTrack();
+					player.currentTrack.play();
+				} else if (item < player.currentPosition) {
+					player.currentPosition--;
+				}
 			}
 		});
 		$('#playtoggle').bind('click', function(e) {
@@ -35,9 +46,15 @@ var player = {
 		$('#skip').bind('click', function(e) {
 			e.preventDefault();
 			var currentQueue = $('.queue li');
+			$(currentQueue[player.currentPosition]).removeClass("playing");
 			if (currentQueue.length > 1) {
-				currentQueue.first().remove();
-				player.currentTrackId = "";
+				if ((currentQueue.length - 1) <= player.currentPosition) {
+					//wrap around when we reach the end
+					player.currentPosition = 0;
+				} else {
+					//increment if we're not at the end
+					player.currentPosition++;
+				}
 				player.currentTrack.pause();
 				$('#player').trigger('queueChanged');
 			}
@@ -46,15 +63,14 @@ var player = {
 	setupTrack: function() {
 		$(player.currentTrack).bind("ended", function () {
 			$queue = $('.queue li');
-			$queue.first().remove();
-			player.currentTrackId = "";
+			$($queue[player.currentPosition]).removeClass("playing");
+			player.currentPosition++;
 			$('#player').trigger('queueChanged');
 		}).bind('play',function() {
 		  $("#playtoggle").addClass('playing');  
 		}).bind('pause ended', function() {
 			$("#playtoggle").removeClass('playing');   
-		});
-		$(player.currentTrack).bind("timeupdate", function() {
+		}).bind("timeupdate", function() {
 			var rem = parseInt(this.duration - this.currentTime, 10),
 			pos = (this.currentTime / this.duration) * 100,
 			mins = Math.floor(rem/60,10),
@@ -101,8 +117,9 @@ var app = {
 	setupRemoveTrack: function() {
 		$('.actions .remove').live('click', function(e) {
 			var $curLink = $(this);
-			$curLink.parents('li').remove();
-			$('#player').trigger('queueChanged');
+			var currentLi = $curLink.parents('li');
+			currentLi.remove();
+			$('#player').trigger('queueChanged', ['remove', $('.queue li').index(currentLi)]);
 		});
 	},
 
@@ -118,7 +135,7 @@ var app = {
 						.append($('<span class="remove" />')))
 					.data('_id', $curLink.data('_id'))
 				);
-				$('#player').trigger('queueChanged');
+				$('#player').trigger('queueChanged', 'new');
 			}
 			return false;
 		});
