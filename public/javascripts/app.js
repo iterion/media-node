@@ -1,71 +1,65 @@
 var player = {
 	currentTrack: null,
-	currentTrackId: null,
-	currentPosition: 0,
-	controls: $('#controls'),
+	currentTrackId: function() {
+		return $('.queue li.playing').first().data('_id');
+	},
+	currentPosition: function() {
+		return $('.queue li').index($('.queue li.playing').first());
+	},
+	startQueue: function() {
+		$('.queue li').removeClass('playing');
+		$('.queue li').first().addClass('playing');
+		player.startNewTrack();
+	},
+	startNewTrack: function() {
+		if(player.currentTrack) {
+			player.currentTrack.pause();
+		}
+		player.currentTrack = new Audio('download/' + player.currentTrackId());
+		player.setupTrack();
+		player.currentTrack.play();	
+	},
+	nextTrack: function() {
+		var currentQueue = $('.queue li');
+		var pos = player.currentPosition();
+		if (currentQueue.length > 1) {
+			$(currentQueue[pos]).removeClass("playing");
+			if (pos >= (currentQueue.length - 1)) {
+				//wrap around when we reach the end
+				$(currentQueue[0]).addClass("playing");
+			} else {
+				//increment if we're not at the end
+				$(currentQueue[pos + 1]).addClass("playing");
+			}
+			player.startNewTrack();
+		}
+	},
 	setupEvents: function() {
 		$('#player').bind("queueChanged", function(e, state, item) {
-			$queue = $(this).find('.queue li');
-			if((($queue.length-1) < player.currentPosition) && $queue.length > 0) {
-				player.currentPosition = $queue.length - 1;
-			}
-			if((state == "new" && $queue.length <= 1) || state == undefined) {
-				var newTrack = $($queue[player.currentPosition]).data('_id');
-				if(newTrack) {
-					player.currentTrackId = newTrack;
-					player.currentTrack = new Audio('download/' + player.currentTrackId);
-					player.setupTrack();
-					player.currentTrack.play();
-				} else {
-					player.currentTrackId = null;
-					player.currentTrack.pause();
-				}
-			} else if (state == "removed") {
-				if (item == player.currentPosition) {
-					player.currentTrack.pause();
-					player.currentTrackId = newTrack;
-					player.currentTrack = new Audio('download/' + player.currentTrackId);
-					player.setupTrack();
-					player.currentTrack.play();
-				} else if (item < player.currentPosition) {
-					player.currentPosition--;
-				}
-			}
+			
 		});
 		$('#playtoggle').bind('click', function(e) {
 			e.preventDefault();
+			var pos = player.currentPosition();
 			var cur = player.currentTrack;
-			if(cur) {
+			if(cur && (pos >= 0)) {
 				if(cur.paused) {
 					cur.play();
 				} else {
 					cur.pause();
 				}
+			} else {
+				player.startQueue();
 			}
 		});
 		$('#skip').bind('click', function(e) {
 			e.preventDefault();
-			var currentQueue = $('.queue li');
-			$(currentQueue[player.currentPosition]).removeClass("playing");
-			if (currentQueue.length > 1) {
-				if ((currentQueue.length - 1) <= player.currentPosition) {
-					//wrap around when we reach the end
-					player.currentPosition = 0;
-				} else {
-					//increment if we're not at the end
-					player.currentPosition++;
-				}
-				player.currentTrack.pause();
-				$('#player').trigger('queueChanged');
-			}
+			player.nextTrack();
 		});
 	},
 	setupTrack: function() {
 		$(player.currentTrack).bind("ended", function () {
-			$queue = $('.queue li');
-			$($queue[player.currentPosition]).removeClass("playing");
-			player.currentPosition++;
-			$('#player').trigger('queueChanged');
+			player.nextTrack();
 		}).bind('play',function() {
 		  $("#playtoggle").addClass('playing');  
 		}).bind('pause ended', function() {
@@ -120,8 +114,18 @@ var app = {
 		$('.actions .remove').live('click', function(e) {
 			var $curLink = $(this);
 			var currentLi = $curLink.parents('li');
-			currentLi.remove();
-			$('#player').trigger('queueChanged', ['remove', $('.queue li').index(currentLi)]);
+			var currentQueue = $('.queue li');
+			var pos = player.currentPosition();
+			if (currentLi.hasClass('playing')) {
+				if (currentQueue.length > 1) {
+					player.nextTrack();
+				} else {
+					player.currentTrack.pause();
+				}
+				currentLi.remove();
+			} else {
+				currentLi.remove();
+			}
 		});
 	},
 
@@ -138,7 +142,7 @@ var app = {
 						.append($('<span class="remove" />')))
 					.data('_id', $curLink.data('_id'))
 				);
-				$('#player').trigger('queueChanged', 'new');
+				//should we start playing right away?
 			}
 			return false;
 		});

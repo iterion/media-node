@@ -113,4 +113,4 @@ function store_data() {
 }
 
 
-read_directory("/mnt/droboshare_media/Music/_Organized_Music");
+read_directory("media");
