@@ -124,8 +124,12 @@ app.get('/find/:tag', function(req, res) {
 //download link - not used for streaming
 app.get('/download/:id', function(req, res) {
 	filesProvider.findById(req.params.id, function(error, file) {
-		console.log("download:" + file.name);
-		res.download(file.path + "/" + file.name);
+		if(file) {
+			console.log("download:" + file.name);
+			res.download(file.path + "/" + file.name);
+		} else {
+			//send error message that client can handle
+		}
 	});
 });
 
