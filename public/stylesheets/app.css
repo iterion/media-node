@@ -6,6 +6,10 @@ body {
 	overflow: hidden;
 }
 
+a {
+	outline: 0;
+}
+
 #wrapper {
 	position: relative;
 }
@@ -36,6 +40,18 @@ body {
 	list-style: none;	
 }
 
+#browser li a {
+	color: black;
+}
+
+#browser li a:hover {
+	color: #444;
+}
+
+#browser li a:visited {
+	color: black;	
+}
+
 #browser li a.artist {
 	margin-left: 10px;
 }
@@ -53,8 +69,16 @@ body {
 	background: rgb(221, 237, 254);
 }
 
+#browser li:nth-child(odd):hover {
+	background: rgb(201, 217, 234);
+}
+
 #browser li:nth-child(even) {
 	background: rgb(245, 245, 255);
+}
+
+#browser li:nth-child(even):hover {
+	background: rgb(225, 225, 235);
 }
 
 #player {
@@ -139,7 +163,7 @@ body {
 
 .queue li {
 	margin: 0;
-	padding-left: 10px;
+	padding-left: 28px;
 	position: relative;
 }
 
@@ -167,6 +191,18 @@ body {
 }
 
 .queue li.sort-placeholder {
+	height: 60px;
+}
+
+.queue li .handle {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgb(7,96,184)), color-stop(0.5, rgb(19,81,143)), color-stop(0.51, rgb(12,65,122)), color-stop(1, rgb(7,42,82)));
+	background: -moz-linear-gradient(center top, rgb(7,96,184) 0%, rgb(19,81,143) 50%, rgb(12,65,122) 51%, rgb(7,42,82) 100%);
+	left: 0;
+	top: 0;
+	height: 60px;
+	width: 25px;
+	position: absolute;
+	cursor: move;
 }
 
 .queue li .actions {

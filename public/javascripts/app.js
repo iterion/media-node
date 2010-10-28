@@ -165,6 +165,7 @@ var app = {
 					.append($('<p class="actions" />')
 						.append($('<span class="remove" />'))
 						.append($('<span class="playnow" />')))
+					.append($('<div class="handle" />'))
 					.append($('<audio/>', {
 							src: 'download/' + $curLink.data('_id'),
 							preload: 'metadata'
@@ -228,7 +229,8 @@ var app = {
 	},
 	makeQueueSortable: function() {
 		$('.queue').sortable({
-			placeholder: 'sort-placeholder'
+			placeholder: 'sort-placeholder',
+			handle: '.handle',
 		});
 	},
 	loadArtists: function() {
