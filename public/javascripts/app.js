@@ -34,7 +34,6 @@ var player = {
 		var pos = this.currentPosition();
 		if (currentQueue.length > 1) {
 			this.stopCurrentTrack();
-			$(currentQueue[pos]).removeClass("playing");
 			if (pos >= (currentQueue.length - 1)) {
 				//wrap around when we reach the end
 				$(currentQueue[0]).addClass("playing");
@@ -51,11 +50,8 @@ var player = {
 			var pos = player.currentPosition();
 			var cur = player.currentTrack();
 			if(cur && (pos >= 0)) {
-				if(cur.paused) {
-					cur.play();
-				} else {
-					cur.pause();
-				}
+				if(cur.paused) { cur.play(); } 
+				else { cur.pause(); }
 			} else {
 				player.startQueue();
 			}
@@ -66,6 +62,21 @@ var player = {
 		});
 	},
 	setupTrack: function() {
+		$('#gutter').slider({
+			value: 0,
+			step: 0.01,
+			orientation: "horizontal",
+			range: "min",
+			max: player.currentTrack().duration,
+			animate: false,
+			slide: function() {
+				player.manualSeek = true;
+			},
+			stop: function(e, ui) {
+				player.currentTrack().currentTime = ui.value;
+				player.manualSeek = false;
+			}
+		});
 		$(this.currentTrack()).bind("ended", function () {
 			player.nextTrack();
 		}).bind('play',function() {
@@ -77,26 +88,9 @@ var player = {
 			pos = (this.currentTime / this.duration) * 100,
 			mins = Math.floor(rem/60,10),
 			secs = rem - mins*60;
-
 			$('#timeleft').text('-' + mins + ':' + (secs > 9 ? secs : '0' + secs));
 			var positionIndicator = $('#handle');
 			if (!player.manualSeek) { positionIndicator.css({left: pos + '%'}); }
-
-			$('.player #gutter').slider({
-				value: 0,
-				step: 0.01,
-				orientation: "horizontal",
-				range: "min",
-				max: player.currentTrack().duration,
-				animate: true,
-				slide: function() {
-					player.manualSeek = true;
-				},
-				stop: function(e, ui) {
-					player.manualSeek = false;
-					player.currentTrack().currentTime = ui.value;
-				}
-			});
 		});
 	}
 };
