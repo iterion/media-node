@@ -1,4 +1,8 @@
 var player = {
+	manualSeek: false,
+	currentTrackLi: function() {
+		return $('.queue li.playing').first();
+	},
 	currentTrack: function() {
 		return $('.queue li.playing audio').first().get(0);
 	},
@@ -11,17 +15,25 @@ var player = {
 	startQueue: function() {
 		$('.queue li').removeClass('playing');
 		$('.queue li').first().addClass('playing');
-		player.startNewTrack();
+		this.startNewTrack();
+	},
+	stopCurrentTrack: function() {
+		if (this.currentTrack() && !this.currentTrack().paused) {
+			//this should work... not sure wwhat is going on
+			//this.currentTrack().currentTime = 0;
+			this.currentTrack().pause();
+		}
+		this.currentTrackLi().removeClass('playing');
 	},
 	startNewTrack: function() {
-		player.setupTrack();
-		player.currentTrack().play();	
+		this.setupTrack();
+		this.currentTrack().play();	
 	},
 	nextTrack: function() {
 		var currentQueue = $('.queue li');
-		var pos = player.currentPosition();
+		var pos = this.currentPosition();
 		if (currentQueue.length > 1) {
-			player.currentTrack().pause();
+			this.stopCurrentTrack();
 			$(currentQueue[pos]).removeClass("playing");
 			if (pos >= (currentQueue.length - 1)) {
 				//wrap around when we reach the end
@@ -30,7 +42,7 @@ var player = {
 				//increment if we're not at the end
 				$(currentQueue[pos + 1]).addClass("playing");
 			}
-			player.startNewTrack();
+			this.startNewTrack();
 		}
 	},
 	setupEvents: function() {
@@ -54,7 +66,7 @@ var player = {
 		});
 	},
 	setupTrack: function() {
-		$(player.currentTrack()).bind("ended", function () {
+		$(this.currentTrack()).bind("ended", function () {
 			player.nextTrack();
 		}).bind('play',function() {
 		  $("#playtoggle").addClass('playing');  
@@ -67,9 +79,26 @@ var player = {
 			secs = rem - mins*60;
 
 			$('#timeleft').text('-' + mins + ':' + (secs > 9 ? secs : '0' + secs));
+			var positionIndicator = $('#handle');
+			if (!player.manualSeek) { positionIndicator.css({left: pos + '%'}); }
+
+			$('.player #gutter').slider({
+				value: 0,
+				step: 0.01,
+				orientation: "horizontal",
+				range: "min",
+				max: player.currentTrack().duration,
+				animate: true,
+				slide: function() {
+					player.manualSeek = true;
+				},
+				stop: function(e, ui) {
+					player.manualSeek = false;
+					player.currentTrack().currentTime = ui.value;
+				}
+			});
 		});
 	}
-
 };
 
 var app = {
@@ -102,15 +131,15 @@ var app = {
 	setupClickHandlers: function() {
 		this.setupBrowserLinks();
 		this.setupViewerLinks();
-		this.setupRemoveTrack();
+		this.setupTrackControls();
 	},
 	
-	setupRemoveTrack: function() {
+	setupTrackControls: function() {
+		var currentQueue = $('.queue li');
 		//handle removal of tracks from queue
 		$('.actions .remove').live('click', function(e) {
 			var $curLink = $(this);
 			var currentLi = $curLink.parents('li');
-			var currentQueue = $('.queue li');
 			var pos = player.currentPosition();
 			if (currentLi.hasClass('playing')) {
 				if (currentQueue.length > 1) {
@@ -122,6 +151,11 @@ var app = {
 			} else {
 				currentLi.remove();
 			}
+		});
+		$('.actions .playnow').live('click', function(e) {
+			player.stopCurrentTrack();
+			$(this).parents('li').addClass('playing');
+			player.startNewTrack();
 		});
 	},
 
@@ -135,12 +169,14 @@ var app = {
 					.append($('<p class="artist" />').text($curLink.data('artist')))
 					.append($('<p class="album" />').text($curLink.data('album')))
 					.append($('<p class="actions" />')
-						.append($('<span class="remove" />')))
+						.append($('<span class="remove" />'))
+						.append($('<span class="playnow" />')))
 					.append($('<audio/>', {
 							src: 'download/' + $curLink.data('_id'),
 							preload: 'metadata'
 						})
 					)
+					.show('highlight')
 					.data('_id', $curLink.data('_id'))
 				);
 				//should we start playing right away?
@@ -163,7 +199,7 @@ var app = {
 					success: function(json, text, xhr) {
 						var newList = $('<ul/>');
 						$.each(json, function(key, value) {
-							if(value.track) {
+							if(value._id) {
 								var newClass = "viewer-link track";
 								var text = value.track + ". " + value.title;
 								var href = "";
