@@ -1,5 +1,7 @@
 var player = {
-	currentTrack: null,
+	currentTrack: function() {
+		return $('.queue li.playing audio').first().get(0);
+	},
 	currentTrackId: function() {
 		return $('.queue li.playing').first().data('_id');
 	},
@@ -12,17 +14,14 @@ var player = {
 		player.startNewTrack();
 	},
 	startNewTrack: function() {
-		if(player.currentTrack) {
-			player.currentTrack.pause();
-		}
-		player.currentTrack = new Audio('download/' + player.currentTrackId());
 		player.setupTrack();
-		player.currentTrack.play();	
+		player.currentTrack().play();	
 	},
 	nextTrack: function() {
 		var currentQueue = $('.queue li');
 		var pos = player.currentPosition();
 		if (currentQueue.length > 1) {
+			player.currentTrack().pause();
 			$(currentQueue[pos]).removeClass("playing");
 			if (pos >= (currentQueue.length - 1)) {
 				//wrap around when we reach the end
@@ -35,13 +34,10 @@ var player = {
 		}
 	},
 	setupEvents: function() {
-		$('#player').bind("queueChanged", function(e, state, item) {
-			
-		});
 		$('#playtoggle').bind('click', function(e) {
 			e.preventDefault();
 			var pos = player.currentPosition();
-			var cur = player.currentTrack;
+			var cur = player.currentTrack();
 			if(cur && (pos >= 0)) {
 				if(cur.paused) {
 					cur.play();
@@ -58,7 +54,7 @@ var player = {
 		});
 	},
 	setupTrack: function() {
-		$(player.currentTrack).bind("ended", function () {
+		$(player.currentTrack()).bind("ended", function () {
 			player.nextTrack();
 		}).bind('play',function() {
 		  $("#playtoggle").addClass('playing');  
@@ -120,7 +116,7 @@ var app = {
 				if (currentQueue.length > 1) {
 					player.nextTrack();
 				} else {
-					player.currentTrack.pause();
+					player.currentTrack().pause();
 				}
 				currentLi.remove();
 			} else {
@@ -140,6 +136,11 @@ var app = {
 					.append($('<p class="album" />').text($curLink.data('album')))
 					.append($('<p class="actions" />')
 						.append($('<span class="remove" />')))
+					.append($('<audio/>', {
+							src: 'download/' + $curLink.data('_id'),
+							preload: 'metadata'
+						})
+					)
 					.data('_id', $curLink.data('_id'))
 				);
 				//should we start playing right away?
@@ -152,19 +153,6 @@ var app = {
 		$('li a.browser-link').live('click', function(e) {
 			e.preventDefault();
 			var $curLink = $(this);
-			var newHref = "";
-			var newClass = "";
-			if ($curLink.hasClass('artist')) {
-				//we're getting albums
-				newHref = "show/album/";
-				newClass = "album";
-			} else if ($curLink.hasClass('album')) {
-				newHref = "";
-				newClass = "track"
-			} else {
-				//dunno how to handle this
-				//don't currently need to
-			}
 			//is this section loaded?
 			if(!$curLink.data('loaded')) {
 				$.ajax({
@@ -175,24 +163,24 @@ var app = {
 					success: function(json, text, xhr) {
 						var newList = $('<ul/>');
 						$.each(json, function(key, value) {
-							//TODO make this shit more DRY
-							if (newClass == "track") {
-								$('<li/>').append(
-									$('<a/>', {
-										"class": "viewer-link " + newClass,
-										text: value.track + ". " + value.title,
-										href: "#"
-									}).data(value)
-								).appendTo(newList);
-							} else {
-								$('<li/>').append(
-									$('<a/>', {
-										"class": "browser-link " + newClass,
-										text: value,
-										href: newHref + value
-									})
-								).appendTo(newList);
+							if(value.track) {
+								var newClass = "viewer-link track";
+								var text = value.track + ". " + value.title;
+								var href = "";
+								var data = value;
+							}	else {
+								var text = value;
+								var newClass = "browser-link album";
+								var href = "show/album/" + value;
+								var data = {data: value};
 							}
+							$('<li/>').append(
+								$('<a/>', {
+									"class": newClass,
+									text: text,
+									href: href
+								}).data(data)
+							).appendTo(newList);
 						});
 						$curLink.parent().append(newList);
 					},
