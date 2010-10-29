@@ -20,7 +20,9 @@ var player = {
 	stopCurrentTrack: function() {
 		if (this.currentTrack() && !this.currentTrack().paused) {
 			//this should work... not sure wwhat is going on
-			//this.currentTrack().currentTime = 0;
+			//works in chrome.. so obviously it's tied to ff not loading
+			//the files.. there should be some way we can check
+			this.currentTrack().currentTime = 0;
 			this.currentTrack().pause();
 		}
 		this.currentTrackLi().removeClass('playing');
@@ -156,9 +158,10 @@ var app = {
 	setupViewerLinks: function() {
 		//handle addition of tracks to queue
 		$('li a.viewer-link').live('click', function(e) {
+			e.preventDefault();
 			var $curLink = $(this);
 			if($curLink.data('ext') == 'mp3' || $curLink.data('ext') == 'ogg') {
-				$('#player ol').append($('<li/>')
+				var newTrack = $('<li style="display: none"/>')
 					.append($('<h4 class="title" />').text($curLink.data('title')))
 					.append($('<p class="artist" />').text($curLink.data('artist')))
 					.append($('<p class="album" />').text($curLink.data('album')))
@@ -171,12 +174,10 @@ var app = {
 							preload: 'metadata'
 						})
 					)
-					.show('highlight')
-					.data('_id', $curLink.data('_id'))
-				);
-				//should we start playing right away?
+					.data('_id', $curLink.data('_id'));
+				$('#player ol').append(newTrack);
+				newTrack.show('highlight');
 			}
-			return false;
 		});
 	},
 
@@ -197,7 +198,7 @@ var app = {
 							if(value._id) {
 								var newClass = "viewer-link track";
 								var text = value.track + ". " + value.title;
-								var href = "";
+								var href = "#";
 								var data = value;
 							}	else {
 								var text = value;
