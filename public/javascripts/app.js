@@ -193,18 +193,22 @@ var app = {
 						$curLink.data('loaded', true);
 					},
 					success: function(json, text, xhr) {
+                        var newClass = '';
+                        var linkText = '';
+                        var href = '';
+                        var data = '';
 						var newList = $('<ul/>');
 						$.each(json, function(key, value) {
 							if(value._id) {
-								var newClass = "viewer-link track";
-								var text = value.track + ". " + value.title;
-								var href = "#";
-								var data = value;
+								newClass = "viewer-link track";
+								linkText = value.track + ". " + value.title;
+								href = "#";
+								data = value;
 							}	else {
-								var text = value;
-								var newClass = "browser-link album";
-								var href = "show/album/" + value;
-								var data = {data: value};
+								linkText = value;
+								newClass = "browser-link album";
+								href = "show/album/" + value;
+								data = {data: value};
 							}
 							$('<li/>').append(
 								$('<a/>', {
@@ -231,7 +235,7 @@ var app = {
 	makeQueueSortable: function() {
 		$('.queue').sortable({
 			placeholder: 'sort-placeholder',
-			handle: '.handle',
+			handle: '.handle'
 		});
 	},
 	loadArtists: function() {
