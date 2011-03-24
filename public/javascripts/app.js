@@ -213,7 +213,7 @@ var app = {
 							$('<li/>').append(
 								$('<a/>', {
 									"class": newClass,
-									text: text,
+									text: linkText,
 									href: href
 								}).data(data)
 							).appendTo(newList);

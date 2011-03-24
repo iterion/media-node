@@ -1,17 +1,30 @@
+require.paths.unshift('support/mongoose/lib');
+
 var express = require('express'),
-    app = express.createServer();
-var FilesProvider = require('./files-provider').FilesProvider;
+    app = express.createServer(),
+		mongoose = require('mongoose');
 
-var filesProvider = new FilesProvider();
+var setup = require('./lib/setup.js').setup({
+	app: app,
+	mongoose: mongoose
+});
+//var FilesProvider = require('./files-provider').FilesProvider;
 
-app.use(express.staticProvider(__dirname + '/public'));
-app.set('views', 'views');
-app.set('view engine', 'jade');
+//var filesProvider = new FilesProvider();
+
+app.configure(function() {
+	app.use(express.static(__dirname + '/public'));
+	app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
+	app.use(app.router);
+	app.set('views', 'views');
+	app.set('view engine', 'jade');
+});
 
 //list all files
 app.get('/', function(req, res) {
 	console.log('requested index');	
-	filesProvider.findAll(function(err, docs) {
+	//filesProvider.findAll(function(err, docs) {
+	File.find({}, function (err, docs) {
 		res.render('index', {
 			locals: {
 				files: docs
@@ -41,7 +54,7 @@ app.get('/list/:field.:format?', function(req, res) {
 	var field = req.params.field;
 	var format = req.params.format;
 	console.log('list ' + field + 's');
-	filesProvider.getPossible(field, function(err, docs) {
+	File.distinct(field, {}, function(err, docs) {
 		if (format == 'json') {
 			res.send(docs);
 		} else {
@@ -129,6 +142,8 @@ app.get('/download/:id', function(req, res) {
 			res.download(file.path + "/" + file.name);
 		} else {
 			//send error message that client can handle
+			console.log("no file");
+			console.log(error);
 		}
 	});
 });
