@@ -11,7 +11,7 @@ var utils = require('./utils')
 
 function Query (criteria, options) {
   options = this.options = options || {};
-	if ("String" == typeof options) {
+	if ("string" == typeof options) {
 		this._key = options;
 		options = this.options = {};
 	}

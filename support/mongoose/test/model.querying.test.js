@@ -206,6 +206,29 @@ module.exports = {
 //    BlogPostB.count({}, fn).executed.should.be.true;
   },
 
+  'test that distinct returns a Query': function () {
+    var db = start()
+      , BlogPostB = db.model('BlogPostB', collection);
+
+    BlogPostB.distinct('title', {}).should.be.an.instanceof(Query);
+
+    db.close();
+  },
+
+	'test that distinct Query executes when you pass a callback': function () {
+    var db = start()
+      , BlogPostB = db.model('BlogPostB', collection)
+      , count = 2;
+
+    function fn () {
+      --count || db.close();
+    };
+
+    BlogPostB.distinct('title', {}, fn).should.be.an.instanceof(Query);
+
+    BlogPostB.distinct('title', fn).should.be.an.instanceof(Query);
+  },
+
   'test that update returns a Query': function () {
     var db = start()
       , BlogPostB = db.model('BlogPostB', collection);
@@ -361,6 +384,43 @@ module.exports = {
       });
     });
   },
+
+	'test distinct queries': function () {
+		var db = start()
+			, BlogPostB = db.model('BlogPostB', collection)
+			, title1 = 'distinct query1'
+			, title2 = 'distinct query2'
+			, slug = 'distinct slug';
+
+		var post = new BlogPostB();
+		post.set('title', title1);
+		post.set('slug', slug);
+
+		post.save(function (err) {
+			should.strictEqual(err, null);
+
+			BlogPostB.distinct('title', {slug: slug}, function (err, distinct) {
+				distinct.length.should.equal(1);
+				distinct.should.contain(title1);
+
+				var post = new BlogPostB();
+				post.set('title', title2);
+				post.set('slug', slug);
+
+				post.save(function (err) {
+					should.strictEqual(err, null);
+
+					BlogPostB.distinct('title', {slug: slug}, function (err, distinct) {
+						distinct.length.should.equal(2);
+						distinct.should.contain(title1);
+						distinct.should.contain(title2);
+
+						db.close();
+					});
+				});
+			});
+		});
+	},
 
   'test query casting': function () {
     var db = start()

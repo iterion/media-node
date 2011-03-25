@@ -2473,6 +2473,22 @@ module.exports = {
     });
   },
 
+	'test distinct querying via #run (aka #exec)': function () {
+		var db = start()
+			, BlogPost = db.model('BlogPost', collection)
+			, title = 'interoperable distinct as promise';
+
+		BlogPost.create({title: title}, function (err, created) {
+			should.strictEqual(err, null);
+			var query = BlogPost.distinct('title', {title: title});
+			query.exec(function (err, distinct) {
+				should.strictEqual(err, null);
+				distinct[0].should.eql(title);
+				db.close();
+			});
+		});
+	},
+
   'test update querying via #run (aka #exec)': function () {
     var db = start()
       , BlogPost = db.model('BlogPost', collection);
@@ -2575,6 +2591,23 @@ module.exports = {
       });
     });
   },
+
+	'test distinct querying via #run (aka #exec) with promise': function () {
+		var db = start()
+			, BlogPost = db.model('BlogPost', collection)
+			, title = 'interoperable distinct as promise 2';
+
+		BlogPost.create({title: title}, function (err, created) {
+			should.strictEqual(err, null);
+			var query = BlogPost.distinct('title', {title: title});
+			var promise = query.exec();
+			promise.addBack(function (err, distinct) {
+				should.strictEqual(err, null);
+				distinct[0].should.eql(title);
+				db.close();
+			});
+		});
+	},
 
   'test update querying via #run (aka #exec) with promise': function () {
     var db = start()

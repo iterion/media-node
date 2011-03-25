@@ -49,11 +49,12 @@ app.get('/list/:field.:format?', function(req, res) {
 	var format = req.params.format;
 	console.log('list ' + field + 's');
 	File.distinct(field).desc(field).exec(function(err, docs) {
-		if (format == 'json') {
-			res.send(docs);
+		if(err) {
+			res.send(500);
 		} else {
-			if (err) res.redirect('home');
-			else {
+			if (format == 'json') {
+				res.send(docs);
+			} else {
 				res.render('list', {
 					locals: {
 						field: field,

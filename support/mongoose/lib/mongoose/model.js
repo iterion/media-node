@@ -485,6 +485,10 @@ Model.count = function (conditions, callback) {
  */
 
 Model.distinct = function (key, conditions, callback) {
+  if ('function' == typeof conditions) {
+    callback = conditions;
+		conditions = {};
+	}
   var query = new Query(conditions, key).bind(this, 'distinct');
   if ('undefined' == typeof callback)
     return query;
