@@ -5,25 +5,19 @@ var express = require('express'),
 		mongoose = require('mongoose');
 
 var setup = require('./lib/setup.js').setup({
-	app: app,
 	mongoose: mongoose
 });
-//var FilesProvider = require('./files-provider').FilesProvider;
-
-//var filesProvider = new FilesProvider();
 
 app.configure(function() {
 	app.use(express.static(__dirname + '/public'));
 	app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 	app.use(app.router);
-	app.set('views', 'views');
+	app.set('views', 'app/views');
 	app.set('view engine', 'jade');
 });
 
 //list all files
 app.get('/', function(req, res) {
-	console.log('requested index');	
-	//filesProvider.findAll(function(err, docs) {
 	File.find({}, function (err, docs) {
 		res.render('index', {
 			locals: {
@@ -36,7 +30,7 @@ app.get('/', function(req, res) {
 app.get('/list/all.:format?', function(req, res) {
 	console.log('requested list all');	
 	var format = req.params.format || 'html';
-	filesProvider.findAll(function(err, docs) {
+	File.find({}, function(err, docs) {
 		if(format == 'json') {
 			res.send(docs);
 		} else {
@@ -54,7 +48,7 @@ app.get('/list/:field.:format?', function(req, res) {
 	var field = req.params.field;
 	var format = req.params.format;
 	console.log('list ' + field + 's');
-	File.distinct(field, {}, function(err, docs) {
+	File.distinct(field).desc(field).exec(function(err, docs) {
 		if (format == 'json') {
 			res.send(docs);
 		} else {
@@ -72,13 +66,14 @@ app.get('/list/:field.:format?', function(req, res) {
 });
 
 
-app.get('/list/:field/for/:field2/:value.:format?', function(req, res) {
-	var field = req.params.field;
-	var field2 = req.params.field2;
-	var value = req.params.value;
+app.get('/list/:key/for/:where/:value.:format?', function(req, res) {
+	var key = req.params.key;
+	var conditions = {};
+	conditions[req.params.where] = req.params.value;
+	console.log(req.params.value);
 	var format = req.params.format;
-	console.log('list ' + field + 's for ' + field2 + ': ' + value);
-	filesProvider.getPossibleForCriteria(field, field2, value, function(err, docs) {
+	console.log('list ' + key + 's');
+	File.distinct(key, conditions, function(err, docs) {
 		if (format == 'json') {
 			res.send(docs);
 		} else {
@@ -88,12 +83,11 @@ app.get('/list/:field/for/:field2/:value.:format?', function(req, res) {
 });
 
 
-app.get('/show/:field/:query.:format?', function(req, res) {
-	var field = req.params.field;
-	var query = req.params.query;
+app.get('/show/album/:album.:format?', function(req, res) {
+	var conditions = {};
+	conditions['album'] = req.params.album;
 	var format = req.params.format;
-	console.log('show tracks for the ' + query + ' ' + field);
-	filesProvider.queryField(field, query, function(err, docs) {
+	File.find(conditions).asc('track').exec(function(err, docs) {
 		if (format == 'json') {
 			res.send(docs);
 		} else {
@@ -136,7 +130,7 @@ app.get('/find/:tag', function(req, res) {
 
 //download link - not used for streaming
 app.get('/download/:id', function(req, res) {
-	filesProvider.findById(req.params.id, function(error, file) {
+	File.findById(req.params.id, function(error, file) {
 		if(file) {
 			console.log("download:" + file.name);
 			res.download(file.path + "/" + file.name);
@@ -150,7 +144,7 @@ app.get('/download/:id', function(req, res) {
 
 //like download - but used for streaming
 app.get('/stream/:id', function(req, res) {
-	filesProvider.findById(req.params.id, function(error, file) {
+	File.findById(req.params.id, function(error, file) {
 		console.log("stream:" + file.name);
 		res.sendfile(file.path + "/" + file.name);
 	});
@@ -160,7 +154,7 @@ app.get('/stream/:id', function(req, res) {
 //view the file - view automaticall determines type and
 //sets up viewer
 app.get('/view/:id', function(req, res) {
-	filesProvider.findById(req.params.id, function(error, file) {
+	File.findById(req.params.id, function(error, file) {
 		console.log("view:" + file.name);
 		res.render('stream', {
 			locals: {

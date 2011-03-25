@@ -207,7 +207,7 @@ var app = {
 							}	else {
 								linkText = value;
 								newClass = "browser-link album";
-								href = "show/album/" + value;
+								href = "show/album/" + value.replace(/'/, "%27");
 								data = {data: value};
 							}
 							$('<li/>').append(
@@ -249,7 +249,7 @@ var app = {
 					$('<a/>', {
 						"class": "browser-link artist",
 						text: value,
-						href: "list/album/for/artist/" + value
+						href: "list/album/for/artist/" + value.replace(/'/, "%27")
 					})).appendTo(list);
 				});
 			}
