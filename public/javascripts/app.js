@@ -97,23 +97,16 @@ var player = {
 	}
 };
 
-var app = {
-	setContentHeight: function() {
-		//Set content height
-		//Total height of window minus the height of the top two elements
-		$('#browser').css('height', $(window).height());
-		$('#player').css('height', $(window).height());
-		$('#player .queue').css('height', $(window).height() - $('#controls').height()); 
-	},
 
-	setupAjaxDefaults: function() {
-		$.ajaxSetup({
+var ajax = {
+    setupAjaxDefaults: function() {
+        $.ajaxSetup({
 			dataType: "json",
 			timeout: 5000
 		});
 	},
-
-	setupAjaxHandlers: function() {
+    
+    setupAjaxHandlers: function() {
 		//show loading indicator
 		var $loading = $('#loading');
 		$('body').ajaxStart(function() {
@@ -123,12 +116,39 @@ var app = {
 			$loading.fadeOut();
 		});
 	},
+    
+    loadArtists: function() {
+		//Load up our artists
+		$.ajax({
+			url: 'list/artist.json',
+			success: function(json, text, xhr) {
+				var list = $('<ul/>').appendTo($('#browser').empty());
+				$.each(json, function(key, value) {
+					$('<li/>').append(
+					$('<a/>', {
+						"class": "browser-link artist",
+						text: value,
+						href: "list/album/for/artist/" + value
+					})).appendTo(list);
+				});
+			}
+		});
+	}
+};
+
+var app = {
+	setContentHeight: function() {
+		//Set content height
+		//Total height of window minus the height of the top two elements
+		$('#browser').css('height', $(window).height());
+		$('#player').css('height', $(window).height());
+		$('#player .queue').css('height', $(window).height() - $('#controls').height()); 
+	},
 
 	setupClickHandlers: function() {
 		this.setupBrowserLinks();
 		this.setupViewerLinks();
 		this.setupTrackControls();
-		this.setupLoadAllButton();
 	},
 	
 	setupTrackControls: function() {
@@ -154,10 +174,6 @@ var app = {
 			$(this).parents('li').addClass('playing');
 			player.startNewTrack();
 		});
-	},
-
-	setupLoadAllButton: function() {
-		
 	},
 
 	setupViewerLinks: function() {
@@ -212,7 +228,7 @@ var app = {
 							}	else {
 								linkText = value;
 								newClass = "browser-link album";
-								href = "show/album/" + value.replace(/'/, "%27");
+								href = "show/album/" + value;
 								data = {data: value};
 							}
 							$('<li/>').append(
@@ -242,23 +258,6 @@ var app = {
 			placeholder: 'sort-placeholder',
 			handle: '.handle'
 		});
-	},
-	loadArtists: function() {
-		//Load up our artists
-		$.ajax({
-			url: 'list/artist.json',
-			success: function(json, text, xhr) {
-				var list = $('<ul/>').appendTo($('#browser').empty());
-				$.each(json, function(key, value) {
-					$('<li/>').append(
-					$('<a/>', {
-						"class": "browser-link artist",
-						text: value,
-						href: "list/album/for/artist/" + value.replace(/'/, "%27")
-					})).appendTo(list);
-				});
-			}
-		});
 	}
 };
 
@@ -271,10 +270,10 @@ $(function() {
 	$(window).resize(app.setContentHeight);
 	
 	//Set up global Ajax defaults
-	app.setupAjaxDefaults();
+	ajax.setupDefaults();
 
 	//Set up gloabal Ajax handlers
-	app.setupAjaxHandlers();
+	ajax.setupHandlers();
 
 	//Set up click handlers
 	app.setupClickHandlers();
@@ -283,7 +282,7 @@ $(function() {
 	player.setupEvents();
 
 	//load our starting data
-	app.loadArtists();
+	ajax.loadArtists();
 
 	//make queue sortable
 	app.makeQueueSortable();
