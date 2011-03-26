@@ -168,6 +168,7 @@ var ajax = {
 					).appendTo(newList);
 				});
 				$curLink.parent().append(newList);
+                $curLink.trigger('load');
 			},
 			error: function(json, text, xhr) {
 				//in case we have a problem loading data set
@@ -260,10 +261,11 @@ var app = {
         $('li a.add-album').live('click', function(e) {
             e.preventDefault();
             var $curLink = $(this);
+            var $browserLink = $curLink.parent().find('a.browser-link');
             
             if(!$curLink.parent().data('loaded')) {
-                ajax.loadAlbumsTracks($curLink);
-                $(curLink).one('load', function(e) {
+                ajax.loadAlbumsTracks($browserLink);
+                $browserLink.one('load', function(e) {
                      $curLink.parent().find('ul li a').trigger('click');  
                 });
 			} else {
