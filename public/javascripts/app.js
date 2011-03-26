@@ -99,14 +99,14 @@ var player = {
 
 
 var ajax = {
-    setupAjaxDefaults: function() {
+    setupDefaults: function() {
         $.ajaxSetup({
 			dataType: "json",
 			timeout: 5000
 		});
 	},
     
-    setupAjaxHandlers: function() {
+    setupHandlers: function() {
 		//show loading indicator
 		var $loading = $('#loading');
 		$('body').ajaxStart(function() {
@@ -133,7 +133,49 @@ var ajax = {
 				});
 			}
 		});
-	}
+	},
+    
+    loadAlbumsTracks: function($curLink) {
+        $.ajax({
+			url: $curLink.attr('href') + '.json',
+			beforeSend: function() {
+				$curLink.parent().data('loaded', true);
+			},
+			success: function(json, text, xhr) {
+                var newClass = '';
+                var linkText = '';
+                var href = '';
+                var data = '';
+				var newList = $('<ul/>');
+				$.each(json, function(key, value) {
+					if(value._id) { // if we get and id then we know it's a track
+						newClass = "viewer-link track";
+						linkText = value.track + ". " + value.title;
+						href = "#";
+						data = value;
+					}	else {
+						linkText = value;
+						newClass = "browser-link album";
+						href = "show/album/" + value.replace(/'/, "%27");
+						data = {data: value};
+					}
+					$('<li/>').append(
+						$('<a/>', {
+							"class": newClass,
+							text: linkText,
+							href: href
+						}).data(data)
+					).appendTo(newList);
+				});
+				$curLink.parent().append(newList);
+			},
+			error: function(json, text, xhr) {
+				//in case we have a problem loading data set
+				//the loaded flag to false to force reload
+				$curLink.data('loaded', false);
+			}
+		});   
+    }
 };
 
 var app = {
@@ -207,52 +249,30 @@ var app = {
 			e.preventDefault();
 			var $curLink = $(this);
 			//is this section loaded?
-			if(!$curLink.data('loaded')) {
-				$.ajax({
-					url: $curLink.attr('href') + '.json',
-					beforeSend: function() {
-						$curLink.data('loaded', true);
-					},
-					success: function(json, text, xhr) {
-                        var newClass = '';
-                        var linkText = '';
-                        var href = '';
-                        var data = '';
-						var newList = $('<ul/>');
-						$.each(json, function(key, value) {
-							if(value._id) {
-								newClass = "viewer-link track";
-								linkText = value.track + ". " + value.title;
-								href = "#";
-								data = value;
-							}	else {
-								linkText = value;
-								newClass = "browser-link album";
-								href = "show/album/" + value;
-								data = {data: value};
-							}
-							$('<li/>').append(
-								$('<a/>', {
-									"class": newClass,
-									text: linkText,
-									href: href
-								}).data(data)
-							).appendTo(newList);
-						});
-						$curLink.parent().append(newList);
-					},
-					error: function(json, text, xhr) {
-						//in case we have a problem loading data set
-						//the loaded flag to false to force reload
-						$curLink.data('loaded', false);
-					}
-				});
+			if(!$curLink.parent().data('loaded')) {
+				ajax.loadAlbumsTracks($curLink);
 			} else {
 				//when the list is loaded just toggle the display
 				$curLink.parent().find('ul').first().toggleClass('hidden');
 			}
 		});
+        
+        $('li a.add-album').live('click', function(e) {
+            e.preventDefault();
+            var $curLink = $(this);
+            
+            if(!$curLink.parent().data('loaded')) {
+                ajax.loadAlbumsTracks($curLink);
+                $(curLink).one('load', function(e) {
+                     $curLink.parent().find('ul li a').trigger('click');  
+                });
+			} else {
+				//when the list is loaded just toggle the display
+				$curLink.parent().find('ul li a').trigger('click');
+			}
+        });
 	},
+    
 	makeQueueSortable: function() {
 		$('.queue').sortable({
 			placeholder: 'sort-placeholder',
