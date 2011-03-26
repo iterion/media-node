@@ -128,6 +128,7 @@ var app = {
 		this.setupBrowserLinks();
 		this.setupViewerLinks();
 		this.setupTrackControls();
+		this.setupLoadAllButton();
 	},
 	
 	setupTrackControls: function() {
@@ -153,6 +154,10 @@ var app = {
 			$(this).parents('li').addClass('playing');
 			player.startNewTrack();
 		});
+	},
+
+	setupLoadAllButton: function() {
+		
 	},
 
 	setupViewerLinks: function() {
